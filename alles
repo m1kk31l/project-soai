@@ -1,0 +1,168 @@
+import pygame
+pygame.init()
+pygame.display.set_caption("NOT SUPER SMASH BROS")
+ 
+scherm_display = (1280,720)
+scherm = pygame.display.set_mode(scherm_display)
+frame_count = 60.0
+clock = pygame.time.Clock()
+ 
+
+
+
+
+# kleuren
+zwart = (0,0,0)
+wit = (255,255,255)
+groen = (0,255,0)
+rood = (255,0,0)
+def draw_text(text,font,text_col,x,y):
+    img = font.render(text,True,text_col)
+    scherm.blit(img,(x,y))
+
+platform_L = ()
+beginpos = (640,450)
+snelheid = 7
+beneden = 20
+class personnage(): 
+    def __init__(self, img, img_rev): 
+        self.image_right = pygame.image.load(img)
+        self.image_left = pygame.image.load(img_rev)
+        self.surf = self.image_right
+        self.richting = 1
+        self.sprong = 0
+        self.max_sprong = 2
+        self.op_grond = False 
+        self.rect = self.surf.get_rect() 
+        self.rect.x = beginpos[0]
+        self.rect.y = beginpos[1]
+        self.gr = 0 
+        self.dashing = False
+        self.dashing_tijd = 0
+        self.dashing_maxtijd = frame_count * 0.15
+        self.dashing_cooldown = frame_count * 2
+        self.dashing_Ctijd = 0 
+        self.levens = 3
+    def update(self,pressed_keys): 
+        self.rect.y +=self.gr 
+        if self.richting == 1:
+            self.surf = self.image_right
+        else:
+            self.surf = self.image_left
+        if self.rect.y <= 0 or self.rect.y >= scherm_display[1]  or self.rect.x <= 0 or self.rect.x >= scherm_display[0]:
+            if self.levens >= 0 :
+                self.rect.x = beginpos[0]
+                self.rect.y = beginpos[1]
+                self.levens -= 1
+            else:
+                draw_text("YOU WIN", text_font, groen, 670, 200)
+                draw_text("YOU LOSE", text_font, rood, 80, 200)
+                pygame.draw.line(scherm,zwart, (620,0),(620,720),20)
+        if pressed_keys[pygame.K_LSHIFT] and not self.dashing and self.dashing_Ctijd >= self.dashing_cooldown:
+            self.dashing = True
+            self.dashing_tijd = 0
+        
+        if self.dashing:
+            if self.dashing_tijd < self.dashing_maxtijd:
+                self.rect.x += 25 * self.richting
+                self.dashing_tijd += 1
+            else:
+                self.dashing = False
+                self.dashing_Ctijd = 0
+        if not self.dashing:
+            self.dashing_Ctijd += 1
+        if pressed_keys[pygame.K_SPACE]:
+            if len(attaque) < 1:
+                projectiel = long_range_att(self.rect.center, self.richting)
+                attaque.append(projectiel)
+        if pressed_keys[pygame.K_d]: 
+            self.rect.x += snelheid 
+            self.richting = 1
+        if pressed_keys[pygame.K_q]: 
+            self.rect.x -= snelheid
+            self.richting = -1
+        if pressed_keys[pygame.K_s]: 
+            if 480 <=self.rect.y <= 500 and 250 <= self.rect.x <= 950: 
+                self.rect.y = 485
+            else: 
+                self.rect.y += beneden
+        if pressed_keys[pygame.K_z] and self.sprong <= self.max_sprong: 
+            if self.sprong == 0:
+                self.gr = -65
+            else:
+                self.gr = -40
+            self.sprong += 1 
+        elif 295<= self.rect.y <= 300 and 750 <= self.rect.x <= 1070: 
+            self.rect.y = 300 
+            self.gr = 0 
+            self.sprong = 0
+        elif 295<=self.rect.y <= 300 and 140 <= self.rect.x <= 460: 
+            self.rect.y = 300 
+            self.gr = 0 
+            self.sprong = 0
+        elif 480 <=self.rect.y <= 500 and 250 <= self.rect.x <= 950: 
+            self.rect.y = 485 
+            self.gr = 0 
+            self.sprong = 0
+        else: 
+            self.gr += 5        
+            self.gr = min(self.gr, 25)
+        
+ 
+class long_range_att():
+    def __init__(self, center_personnage, direction):
+        self.surf = pygame.Surface((20,20))
+        self.surf.fill((0,250,0))
+        self.rect = self.surf.get_rect(center = center_personnage)
+        self.direction = direction
+    def update(self):
+        self.rect.x += (15 * self.direction)
+        if self.rect.right >= 1280 or self.rect.left <= 0:
+            return True  # markeer voor verwijdering
+        return False
+            
+Kogu = personnage("GOKU .png", "GOKU_reverse.png")            
+alle_spelers = [Kogu]
+ 
+        
+text_font = pygame.font.SysFont("broadway", 100)
+attaque = []
+ 
+ 
+doorlopen = True
+while doorlopen:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            doorlopen = False
+    scherm.fill((135, 206, 235)) # achtregrond
+    pygame.draw.circle(scherm, (255,255,255),(650,120),30)
+    pygame.draw.circle(scherm, (255,255,255),(690,120),35)
+    pygame.draw.circle(scherm,(255,255,255),(730,120),30) 
+    pygame.draw.rect(scherm, (255,255,255),(650,120,80,30)) #wolk rechts
+    pygame.draw.circle(scherm,(255,255,255),(180,80),25)
+    pygame.draw.circle(scherm, (255,255,255), (150,80), 30)
+    pygame.draw.circle(scherm, (255,255,255), (120,80), 25)
+    pygame.draw.rect(scherm,(255,255,255), (120,80,70,25)) # wolk links
+    pygame.draw.circle(scherm,(255,255,255),(280,235),15)
+    pygame.draw.circle(scherm,(255,255,255),(300,235),20)
+    pygame.draw.circle(scherm,(255,255,255),(320,235),15)
+    pygame.draw.rect(scherm,(255,255,255),(280,235,40,20)) # wolk middel
+    pygame.draw.circle(scherm,(255,223,0),(1080,150),80) # zon 
+    pygame.draw.rect(scherm,(160,82,45),(320,586,630,65))
+    pygame.draw.rect(scherm,(124,252,0),(320,586,630,15))
+    pygame.draw.rect(scherm,(160,82,45),(820,400,250,45))
+    pygame.draw.rect(scherm,(124,252,0),(820,400,250,12))
+    pygame.draw.rect(scherm,(160,82,45),(210,400,250,45))
+    pygame.draw.rect(scherm,(124,252,0),(210,400,250,12)) #platforms
+    for speler in alle_spelers:
+        scherm.blit(speler.surf,speler.rect)# spelers
+    key_pressed = pygame.key.get_pressed()
+    for speler in alle_spelers:
+        speler.update(key_pressed)
+    attaque = [p for p in attaque if not p.update()]
+    for projectiel in attaque:
+        scherm.blit(projectiel.surf, projectiel.rect)
+    pygame.display.flip()
+    clock.tick(frame_count)
+ 
+pygame.quit() #achtergrond klaar

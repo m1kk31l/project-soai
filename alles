@@ -16,12 +16,18 @@ zwart = (0,0,0)
 wit = (255,255,255)
 groen = (0,255,0)
 rood = (255,0,0)
+geel = (255,223,0)
+bruin = (160,82,45)
+gras = (124,252,0)
+
 def draw_text(text,font,text_col,x,y):
     img = font.render(text,True,text_col)
     scherm.blit(img,(x,y))
 
-platform_L = ()
-beginpos = (640,450)
+platform_C = (320,586,630,65)
+platform_L = (210,400,250,12)
+platform_R = (210,400,250,45)
+beginpos = (500,500)
 snelheid = 7
 beneden = 20
 class personnage(): 
@@ -58,6 +64,7 @@ class personnage():
                 draw_text("YOU WIN", text_font, groen, 670, 200)
                 draw_text("YOU LOSE", text_font, rood, 80, 200)
                 pygame.draw.line(scherm,zwart, (620,0),(620,720),20)
+                
         if pressed_keys[pygame.K_LSHIFT] and not self.dashing and self.dashing_Ctijd >= self.dashing_cooldown:
             self.dashing = True
             self.dashing_tijd = 0
@@ -135,25 +142,25 @@ while doorlopen:
         if event.type == pygame.QUIT:
             doorlopen = False
     scherm.fill((135, 206, 235)) # achtregrond
-    pygame.draw.circle(scherm, (255,255,255),(650,120),30)
-    pygame.draw.circle(scherm, (255,255,255),(690,120),35)
-    pygame.draw.circle(scherm,(255,255,255),(730,120),30) 
-    pygame.draw.rect(scherm, (255,255,255),(650,120,80,30)) #wolk rechts
-    pygame.draw.circle(scherm,(255,255,255),(180,80),25)
-    pygame.draw.circle(scherm, (255,255,255), (150,80), 30)
-    pygame.draw.circle(scherm, (255,255,255), (120,80), 25)
-    pygame.draw.rect(scherm,(255,255,255), (120,80,70,25)) # wolk links
-    pygame.draw.circle(scherm,(255,255,255),(280,235),15)
-    pygame.draw.circle(scherm,(255,255,255),(300,235),20)
-    pygame.draw.circle(scherm,(255,255,255),(320,235),15)
-    pygame.draw.rect(scherm,(255,255,255),(280,235,40,20)) # wolk middel
-    pygame.draw.circle(scherm,(255,223,0),(1080,150),80) # zon 
-    pygame.draw.rect(scherm,(160,82,45),(320,586,630,65))
-    pygame.draw.rect(scherm,(124,252,0),(320,586,630,15))
-    pygame.draw.rect(scherm,(160,82,45),(820,400,250,45))
-    pygame.draw.rect(scherm,(124,252,0),(820,400,250,12))
-    pygame.draw.rect(scherm,(160,82,45),(210,400,250,45))
-    pygame.draw.rect(scherm,(124,252,0),(210,400,250,12)) #platforms
+    pygame.draw.circle(scherm, wit,(650,120),30)
+    pygame.draw.circle(scherm, wit,(690,120),35)
+    pygame.draw.circle(scherm,wit,(730,120),30) 
+    pygame.draw.rect(scherm, wit,(650,120,80,30)) #wolk rechts
+    pygame.draw.circle(scherm,wit,(180,80),25)
+    pygame.draw.circle(scherm, wit, (150,80), 30)
+    pygame.draw.circle(scherm, wit, (120,80), 25)
+    pygame.draw.rect(scherm,wit, (120,80,70,25)) # wolk links
+    pygame.draw.circle(scherm,wit,(280,235),15)
+    pygame.draw.circle(scherm,wit ,(300,235),20)
+    pygame.draw.circle(scherm,wit,(320,235),15)
+    pygame.draw.rect(scherm,wit ,(280,235,40,20)) # wolk middel
+    pygame.draw.circle(scherm,geel,(1080,150),80) # zon 
+    pygame.draw.rect(scherm,bruin,platform_C)
+    pygame.draw.rect(scherm,gras,(320,586,630,15))
+    pygame.draw.rect(scherm,bruin,(820,400,250,45))
+    pygame.draw.rect(scherm,gras,(820,400,250,12))
+    pygame.draw.rect(scherm,bruin,platform_R)
+    pygame.draw.rect(scherm,gras,(210,400,250,12)) #platforms
     for speler in alle_spelers:
         scherm.blit(speler.surf,speler.rect)# spelers
     key_pressed = pygame.key.get_pressed()

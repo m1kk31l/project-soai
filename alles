@@ -53,12 +53,21 @@ platform_R = (210,400,250,45)
 beginpos = (500,500)
 snelheid = 7
 beneden = 20
-class personnage(): 
-    def __init__(self, img, img_rev): 
-        self.image_right = pygame.image.load(img)
-        self.image_left = pygame.image.load(img_rev)
+
+controller_1 = [pygame.K_s , pygame.K_z, pygame.K_q, pygame.K_d, pygame.K_LSHIFT, pygame.K_a]
+controller_2 = [pygame.K_k, pygame.K_i, pygame.K_j, pygame.K_l, pygame.K_RSHIFT, pygame.K_u]
+class GOKU(): 
+    def __init__(self, img, controller): 
+        self.image_right = pygame.image.load(img[0])
+        self.image_left = pygame.image.load(img[1])
         self.surf = self.image_right
         self.richting = 1
+        self.rechts = controller[3]
+        self.links = controller[2]
+        self.onder = controller[0]
+        self.boven = controller[1]
+        self.LG_ATT = controller[5]
+        self.BOOST = controller[4]
         self.sprong = 0
         self.max_sprong = 2
         self.op_grond = False 
@@ -88,7 +97,7 @@ class personnage():
                 draw_text("YOU LOSE", text_font, rood, 80, 200)
                 pygame.draw.line(scherm,zwart, (620,0),(620,720),20)
                 
-        if pressed_keys[pygame.K_LSHIFT] and not self.dashing and self.dashing_Ctijd >= self.dashing_cooldown:
+        if pressed_keys[self.BOOST] and not self.dashing and self.dashing_Ctijd >= self.dashing_cooldown:
             self.dashing = True
             self.dashing_tijd = 0
         
@@ -101,22 +110,22 @@ class personnage():
                 self.dashing_Ctijd = 0
         if not self.dashing:
             self.dashing_Ctijd += 1
-        if pressed_keys[pygame.K_SPACE]:
+        if pressed_keys[self.LG_ATT]:
             if len(attaque) < 1:
                 projectiel = long_range_att(self.rect.center, self.richting)
                 attaque.append(projectiel)
-        if pressed_keys[pygame.K_d]: 
+        if pressed_keys[self.rechts]: 
             self.rect.x += snelheid 
             self.richting = 1
-        if pressed_keys[pygame.K_q]: 
+        if pressed_keys[self.links]: 
             self.rect.x -= snelheid
             self.richting = -1
-        if pressed_keys[pygame.K_s]: 
+        if pressed_keys[self.onder]: 
             if 480 <=self.rect.y <= 500 and 250 <= self.rect.x <= 950: 
                 self.rect.y = 485
             else: 
                 self.rect.y += beneden
-        if pressed_keys[pygame.K_z] and self.sprong <= self.max_sprong: 
+        if pressed_keys[self.boven] and self.sprong <= self.max_sprong: 
             if self.sprong == 0:
                 self.gr = -65
             else:
@@ -150,9 +159,10 @@ class long_range_att():
         if self.rect.right >= 1280 or self.rect.left <= 0:
             return True  # markeer voor verwijdering
         return False
-            
-Kogu = personnage("GOKU .png", "GOKU_reverse.png")            
-alle_spelers = [Kogu]
+GOKU_IMG = ("GOKU .png", "GOKU_reverse.png")
+Kogu = GOKU(GOKU_IMG, controller_1)
+GOKuU = GOKU(GOKU_IMG, controller_2)
+alle_spelers = [Kogu, GOKuU]
  
         
 text_font = pygame.font.SysFont("broadway", 100)

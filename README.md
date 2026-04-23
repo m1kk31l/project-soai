@@ -1,4 +1,5 @@
 # project-soai
+#Heni Oufras, Mikail Celik (groep 2)
 
 import pygame
 pygame.init()

@@ -19,6 +19,7 @@ rood = (255,0,0)
 geel = (255,223,0)
 bruin = (160,82,45)
 gras = (124,252,0)
+blauw = (0,0,255)
 
 class Figuur:
     def __init__(self, kleur):
@@ -43,6 +44,8 @@ class Rechthoek(Figuur):
     def teken(self, window):
         pygame.draw.rect(window, self.kleur, (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
 
+
+
 def draw_text(text,font,text_col,x,y):
     img = font.render(text,True,text_col)
     scherm.blit(img,(x,y))
@@ -57,9 +60,9 @@ beneden = 20
 controller_1 = [pygame.K_s , pygame.K_z, pygame.K_q, pygame.K_d, pygame.K_LSHIFT, pygame.K_a]
 controller_2 = [pygame.K_k, pygame.K_i, pygame.K_j, pygame.K_l, pygame.K_RSHIFT, pygame.K_u]
 class GOKU(): 
-    def __init__(self, img, controller): 
-        self.image_right = pygame.image.load(img[0])
-        self.image_left = pygame.image.load(img[1])
+    def __init__(self, controller): 
+        self.image_right = pygame.image.load("GOKU .png")
+        self.image_left = pygame.image.load("GOKU_reverse.png")
         self.surf = self.image_right
         self.richting = 1
         self.rechts = controller[3]
@@ -112,8 +115,12 @@ class GOKU():
             self.dashing_Ctijd += 1
         if pressed_keys[self.LG_ATT]:
             if len(attaque) < 1:
-                projectiel = long_range_att(self.rect.center, self.richting)
-                attaque.append(projectiel)
+                if self.richting == 1:
+                    projectiel = long_range_att(self.rect.midright, self.richting)
+                    attaque.append(projectiel)
+                else:
+                    projectiel = long_range_att(self.rect.midleft, self.richting)
+                    attaque.append(projectiel)
         if pressed_keys[self.rechts]: 
             self.rect.x += snelheid 
             self.richting = 1
@@ -146,23 +153,27 @@ class GOKU():
         else: 
             self.gr += 5        
             self.gr = min(self.gr, 25)
-        
+
  
 class long_range_att():
     def __init__(self, center_personnage, direction):
         self.surf = pygame.Surface((20,20))
-        self.surf.fill((0,250,0))
-        self.rect = self.surf.get_rect(center = center_personnage)
+        self.surf.fill((blauw))
+        self.rect = self.surf.get_rect(center = center_personnage )
         self.direction = direction
     def update(self):
         self.rect.x += (15 * self.direction)
+        if self.rect.colliderect(speler_1.rect) or self.rect.colliderect(speler_2.rect):
+            return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
             return True  # markeer voor verwijdering
         return False
-GOKU_IMG = ("GOKU .png", "GOKU_reverse.png")
-Kogu = GOKU(GOKU_IMG, controller_1)
-GOKuU = GOKU(GOKU_IMG, controller_2)
-alle_spelers = [Kogu, GOKuU]
+
+
+
+speler_1 = GOKU(controller_1)
+speler_2 = GOKU(controller_2)
+alle_spelers = [speler_1, speler_2]
  
         
 text_font = pygame.font.SysFont("broadway", 100)

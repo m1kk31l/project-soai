@@ -159,22 +159,25 @@ text_font = pygame.font.SysFont("broadway", 100)
 attaque = []
 
 figuren = [
-    # De Zon
     Cirkel(geel, (1080, 150), 80),
-    # Wolk Rechts
-    Cirkel(wit, (650, 120), 30), Cirkel(wit, (690, 120), 35), Cirkel(wit, (730, 120), 30),
+    Cirkel(wit, (650, 120), 30), 
+    Cirkel(wit, (690, 120), 35), 
+    Cirkel(wit, (730, 120), 30),
     Rechthoek(wit, (650, 120), 80, 30),
-    # Wolk Links
-    Cirkel(wit, (180, 80), 25), Cirkel(wit, (150, 80), 30), Cirkel(wit, (120, 80), 25),
+    Cirkel(wit, (180, 80), 25), 
+    Cirkel(wit, (150, 80), 30), 
+    Cirkel(wit, (120, 80), 25),
     Rechthoek(wit, (120, 80), 70, 25),
-    # Wolk Middel
-    Cirkel(wit, (280, 235), 15), Cirkel(wit, (300, 235), 20), Cirkel(wit, (320, 235), 15),
+    Cirkel(wit, (280, 235), 15), 
+    Cirkel(wit, (300, 235), 20), 
+    Cirkel(wit, (320, 235), 15),
     Rechthoek(wit, (280, 235), 40, 20),
-    # Platforms (Bruin + Gras laag)
-    Rechthoek(bruin, (320, 586), 630, 65), Rechthoek(gras, (320, 586), 630, 15), # Midden
-    Rechthoek(bruin, (820, 400), 250, 45), Rechthoek(gras, (820, 400), 250, 12), # Rechts
-    Rechthoek(bruin, (210, 400), 250, 45), Rechthoek(gras, (210, 400), 250, 12)  # Links
-]
+    Rechthoek(bruin, (320, 586), 630, 65), 
+    Rechthoek(gras, (320, 586), 630, 15),
+    Rechthoek(bruin, (820, 400), 250, 45), 
+    Rechthoek(gras, (820, 400), 250, 12),
+    Rechthoek(bruin, (210, 400), 250, 45), 
+    Rechthoek(gras, (210, 400), 250, 12),]
  
 doorlopen = True
 while doorlopen:

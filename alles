@@ -20,6 +20,7 @@ geel = (255,223,0)
 bruin = (160,82,45)
 gras = (124,252,0)
 blauw = (0,0,255)
+kleur_menu = (40,40,140)
 
 class Figuur:
     def __init__(self, kleur):
@@ -200,27 +201,46 @@ figuren = [
     Rechthoek(bruin, (210, 400), 250, 45), 
     Rechthoek(gras, (210, 400), 250, 12),]
  
+
+status = "MENU" 
+def startscherm():
+    scherm.fill(kleur_menu)
+    titel_font = pygame.font.SysFont("broadway", 80)
+    tussentitel_font = pygame.font.SysFont("arial", 50)
+    
+    draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 150, 150)
+    draw_text("1v1 (druk op b)", tussentitel_font, groen, 550, 350)
+    draw_text("survival (voor later)", tussentitel_font, rood, 550, 450)
+    
 doorlopen = True
 while doorlopen:
+    key_pressed = pygame.key.get_pressed()
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             doorlopen = False
+        
+        if status == "MENU":
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_b:
+                    status = "GAME"
 
-    scherm.fill((135, 206, 235)) 
-
-    for fig in figuren:
-        fig.teken(scherm)
-
-    for speler in alle_spelers:
-        scherm.blit(speler.surf, speler.rect)
+    if status == "MENU":
+        startscherm()
     
-    key_pressed = pygame.key.get_pressed()
-    for speler in alle_spelers:
-        speler.update(key_pressed)
-
-    attaque = [p for p in attaque if not p.update()]
-    for projectiel in attaque:
-        scherm.blit(projectiel.surf, projectiel.rect)
+    elif status == "GAME":
+        scherm.fill((135, 206, 235)) 
+        
+        for fig in figuren:
+            fig.teken(scherm)
+            
+        for speler in alle_spelers:
+            speler.update(key_pressed)
+            scherm.blit(speler.surf, speler.rect)
+        
+        attaque = [p for p in attaque if not p.update()]
+        for projectiel in attaque:
+            scherm.blit(projectiel.surf, projectiel.rect)
 
     pygame.display.flip()
     clock.tick(frame_count)

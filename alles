@@ -194,7 +194,7 @@ class GOKU():
             self.gr = 0 
             self.sprong = 0
             #grote platform
-        elif 480 <=self.rect.y <= 500 and 110 <= self.rect.x <= 1190: 
+        elif 480 <=self.rect.y <= 500 and 60 <= self.rect.x <= 1140: 
             self.rect.y = 485 
             self.gr = 0 
             self.sprong = 0
@@ -216,7 +216,11 @@ class long_range_att():
         self.direction = direction
     def update(self):
         self.rect.x += (15 * self.direction)
-        if self.rect.colliderect(speler_1.rect) or self.rect.colliderect(speler_2.rect):
+        if self.rect.colliderect(speler_1.rect):
+            speler_1.rect.x += 50*self.direction
+            return True
+        if self.rect.colliderect(speler_2.rect):
+            speler_2.rect.x += 50*self.direction     
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
             return True  # markeer voor verwijdering
@@ -246,8 +250,8 @@ figuren = [
     Cirkel(wit, (300, 235), 20), 
     Cirkel(wit, (320, 235), 15),
     Rechthoek(wit, (280, 235), 40, 20),
-    Rechthoek(bruin, (190, 586), 1000, 65), 
-    Rechthoek(gras, (190, 586), 1000, 15),
+    Rechthoek(bruin, (140, 586), 1000, 65), 
+    Rechthoek(gras, (140, 586), 1000, 15),
     Rechthoek(bruin, (820, 400), 250, 45), 
     Rechthoek(gras, (820, 400), 250, 12),
     Rechthoek(bruin, (210, 400), 250, 45), 

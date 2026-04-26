@@ -8,9 +8,6 @@ frame_count = 60.0
 clock = pygame.time.Clock()
  
 
-
-
-
 # kleuren
 zwart = (0,0,0)
 wit = (255,255,255)
@@ -20,7 +17,7 @@ geel = (255,223,0)
 bruin = (160,82,45)
 gras = (124,252,0)
 blauw = (0,0,255)
-kleur_menu = (40,40,140)
+kleur_menu = (200,20,20)
 
 class Figuur:
     def __init__(self, kleur):
@@ -49,13 +46,19 @@ class Rechthoek(Figuur):
 battle_img = pygame.image.load('battle_img.png').convert_alpha()
 exit_img = pygame.image.load('exit_img.png').convert_alpha()
 
+
+
 class Button():
     def __init__(self,x,y,image,scale):
-        width = image.get_width()
-        height = image.get_height()
-        self.image = pygame.transform.scale(image, (int(width*scale), int(height*scale)))
+        width = int(image.get_width()*scale)
+        height = int(image.get_height()*scale)
+        self.image = pygame.transform.scale(image,(width, height))
+        zichtbare_rect = self.image.get_bounding_rect() # de transparente achtergrond negeren
+        new_surf = pygame.Surface(zichtbare_rect.size, pygame.SRCALPHA) #SRCALPHA = pixel per alpha transparency
+        new_surf.blit(self.image, (0, 0), zichtbare_rect)
+        self.image = new_surf
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x,y)
+        self.rect.topleft = (x, y)
         self.clicked = False
 
     def draw(self,window):
@@ -64,6 +67,7 @@ class Button():
         pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+                # [0] = linker knop
                 self.clicked == True
                 action = True
                 
@@ -76,8 +80,8 @@ class Button():
         
         return action
         
-battle_button = Button(450,300,battle_img,0.3)  
-exit_button = Button(450,500,exit_img,0.3)
+battle_button = Button(480,300,battle_img,0.8)  
+exit_button = Button(480,450,exit_img,0.8)
     
     
 def draw_text(text,font,text_col,x,y):
@@ -87,14 +91,16 @@ def draw_text(text,font,text_col,x,y):
 platform_C = (320,586,630,65)
 platform_L = (210,400,250,12)
 platform_R = (210,400,250,45)
-beginpos = (500,500)
+beginpos1 = (400,500)
+beginpos2 = (800,500)
+respawn_pos = (600,100)
 snelheid = 7
 beneden = 20
 
-controller_1 = [pygame.K_s , pygame.K_z, pygame.K_q, pygame.K_d, pygame.K_LSHIFT, pygame.K_a]
-controller_2 = [pygame.K_k, pygame.K_i, pygame.K_j, pygame.K_l, pygame.K_RSHIFT, pygame.K_u]
+controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e]
+controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l]
 class GOKU(): 
-    def __init__(self, controller): 
+    def __init__(self, controller, beginpos): 
         self.image_right = pygame.image.load("GOKU .png")
         self.image_left = pygame.image.load("GOKU_reverse.png")
         self.surf = self.image_right
@@ -126,8 +132,8 @@ class GOKU():
             self.surf = self.image_left
         if self.rect.y <= 0 or self.rect.y >= scherm_display[1]  or self.rect.x <= 0 or self.rect.x >= scherm_display[0]:
             if self.levens >= 0 :
-                self.rect.x = beginpos[0]
-                self.rect.y = beginpos[1]
+                self.rect.x = respawn_pos[0]
+                self.rect.y = respawn_pos[1]
                 self.levens -= 1
             else:
                 draw_text("YOU WIN", text_font, groen, 670, 200)
@@ -205,8 +211,8 @@ class long_range_att():
 
 
 
-speler_1 = GOKU(controller_1)
-speler_2 = GOKU(controller_2)
+speler_1 = GOKU(controller_1, beginpos1)
+speler_2 = GOKU(controller_2, beginpos2)
 alle_spelers = [speler_1, speler_2]
  
         
@@ -238,10 +244,9 @@ figuren = [
 status = "MENU" 
 def startscherm():
     scherm.fill(kleur_menu)
-    titel_font = pygame.font.SysFont("broadway", 80)
-    tussentitel_font = pygame.font.SysFont("arial", 50)
+    titel_font = pygame.font.SysFont("modern", 80)
     
-    draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 150, 150)
+    draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 290, 150)
     
 doorlopen = True
 while doorlopen:
@@ -250,6 +255,10 @@ while doorlopen:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             doorlopen = False
+            
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_b:
+                status = "MENU"
         
 
     if status == "MENU":
@@ -260,7 +269,10 @@ while doorlopen:
             doorlopen = False
     
     elif status == "GAME":
-        scherm.fill((135, 206, 235)) 
+        scherm.fill((135, 206, 235))
+        game_font = pygame.font.SysFont("arial", 30)
+        draw_text("druk op b voor menu", game_font, zwart, 520, 660)
+        
         
         for fig in figuren:
             fig.teken(scherm)

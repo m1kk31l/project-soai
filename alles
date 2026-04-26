@@ -45,8 +45,41 @@ class Rechthoek(Figuur):
     def teken(self, window):
         pygame.draw.rect(window, self.kleur, (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
 
+#buttons
+battle_img = pygame.image.load('battle_img.png').convert_alpha()
+exit_img = pygame.image.load('exit_img.png').convert_alpha()
 
+class Button():
+    def __init__(self,x,y,image,scale):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image, (int(width*scale), int(height*scale)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x,y)
+        self.clicked = False
 
+    def draw(self,window):
+        action = False
+        #muis
+        pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+                self.clicked == True
+                action = True
+                
+            
+            if pygame.mouse.get_pressed()[0] == 0:
+                self.clicked = False
+            
+        #teken de knop op het scherm
+        window.blit(self.image, (self.rect.x, self.rect.y))
+        
+        return action
+        
+battle_button = Button(450,300,battle_img,0.3)  
+exit_button = Button(450,500,exit_img,0.3)
+    
+    
 def draw_text(text,font,text_col,x,y):
     img = font.render(text,True,text_col)
     scherm.blit(img,(x,y))
@@ -209,8 +242,6 @@ def startscherm():
     tussentitel_font = pygame.font.SysFont("arial", 50)
     
     draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 150, 150)
-    draw_text("1v1 (druk op b)", tussentitel_font, groen, 550, 350)
-    draw_text("survival (voor later)", tussentitel_font, rood, 550, 450)
     
 doorlopen = True
 while doorlopen:
@@ -220,13 +251,13 @@ while doorlopen:
         if event.type == pygame.QUIT:
             doorlopen = False
         
-        if status == "MENU":
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_b:
-                    status = "GAME"
 
     if status == "MENU":
         startscherm()
+        if battle_button.draw(scherm):
+            status = "GAME"
+        if exit_button.draw(scherm):
+            doorlopen = False
     
     elif status == "GAME":
         scherm.fill((135, 206, 235)) 

@@ -42,6 +42,11 @@ class Rechthoek(Figuur):
     def teken(self, window):
         pygame.draw.rect(window, self.kleur, (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
 
+class Polygon(Figuur):
+    def __init__(self,kleur,punten):
+        super().__init__(kleur)
+        self.punten = punten
+
 #buttons
 battle_img = pygame.image.load('battle_img.png').convert_alpha()
 exit_img = pygame.image.load('exit_img.png').convert_alpha()
@@ -130,7 +135,7 @@ class GOKU():
             self.surf = self.image_right
         else:
             self.surf = self.image_left
-        if self.rect.y <= 0 or self.rect.y >= scherm_display[1]  or self.rect.x <= 0 or self.rect.x >= scherm_display[0]:
+        if self.rect.y >= scherm_display[1]  or self.rect.x <= 0 or self.rect.x >= scherm_display[0]:
             if self.levens >= 0 :
                 self.rect.x = respawn_pos[0]
                 self.rect.y = respawn_pos[1]
@@ -178,16 +183,24 @@ class GOKU():
             else:
                 self.gr = -40
             self.sprong += 1 
+            #rechts
         elif 295<= self.rect.y <= 300 and 750 <= self.rect.x <= 1070: 
             self.rect.y = 300 
             self.gr = 0 
             self.sprong = 0
+            #links
         elif 295<=self.rect.y <= 300 and 140 <= self.rect.x <= 460: 
             self.rect.y = 300 
             self.gr = 0 
             self.sprong = 0
-        elif 480 <=self.rect.y <= 500 and 250 <= self.rect.x <= 950: 
+            #grote platform
+        elif 480 <=self.rect.y <= 500 and 110 <= self.rect.x <= 1190: 
             self.rect.y = 485 
+            self.gr = 0 
+            self.sprong = 0
+            #boven
+        elif 105 <= self.rect.y <= 115 and 420 <= self.rect.x <= 765:
+            self.rect.y = 110 
             self.gr = 0 
             self.sprong = 0
         else: 
@@ -233,12 +246,15 @@ figuren = [
     Cirkel(wit, (300, 235), 20), 
     Cirkel(wit, (320, 235), 15),
     Rechthoek(wit, (280, 235), 40, 20),
-    Rechthoek(bruin, (320, 586), 630, 65), 
-    Rechthoek(gras, (320, 586), 630, 15),
+    Rechthoek(bruin, (190, 586), 1000, 65), 
+    Rechthoek(gras, (190, 586), 1000, 15),
     Rechthoek(bruin, (820, 400), 250, 45), 
     Rechthoek(gras, (820, 400), 250, 12),
     Rechthoek(bruin, (210, 400), 250, 45), 
-    Rechthoek(gras, (210, 400), 250, 12),]
+    Rechthoek(gras, (210, 400), 250, 12),
+    Rechthoek(bruin, (515,200), 250, 45),
+    Rechthoek(gras, (515,200), 250, 12)]
+    #test Polygon(rood, [(0, 0), (500, 0), (250, 500)])]
  
 
 status = "MENU" 
@@ -280,6 +296,9 @@ while doorlopen:
         for speler in alle_spelers:
             speler.update(key_pressed)
             scherm.blit(speler.surf, speler.rect)
+            draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y-40)
+            draw_text("speler 2", game_font,zwart, speler_2.rect.x , speler_2.rect.y-40)
+            
         
         attaque = [p for p in attaque if not p.update()]
         for projectiel in attaque:

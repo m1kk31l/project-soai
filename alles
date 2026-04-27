@@ -299,12 +299,16 @@ while doorlopen:
     
     elif status == "GAME":
         scherm.fill((135, 206, 235))
-        game_font = pygame.font.SysFont("arial", 30)
-        draw_text("druk op b voor menu", game_font, zwart, 520, 660)
-        
-        
         for fig in figuren:
             fig.teken(scherm)
+        game_font = pygame.font.SysFont("arial", 30)
+        draw_text("druk op b voor menu", game_font, zwart, 520, 660)
+        levens_font = pygame.font.SysFont("arial", 50)
+        draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
+        draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
+        
+        
+        
             
         for speler in alle_spelers:
             speler.update(key_pressed)

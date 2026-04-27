@@ -138,11 +138,12 @@ class GOKU():
         else:
             self.surf = self.image_left
         if self.rect.y >= scherm_display[1]:
-            if self.levens >= 0 :
+            if self.levens >= 2 :
                 self.rect.x = respawn_pos[0]
                 self.rect.y = respawn_pos[1]
                 self.levens -= 1
             else:
+                self.levens = 0
                 draw_text("YOU WIN", text_font, groen, 670, 200)
                 draw_text("YOU LOSE", text_font, rood, 80, 200)
                 pygame.draw.line(scherm,zwart, (620,0),(620,720),20)

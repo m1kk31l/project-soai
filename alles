@@ -46,6 +46,8 @@ class Polygon(Figuur):
     def __init__(self,kleur,punten):
         super().__init__(kleur)
         self.punten = punten
+    def teken(self, window):
+        pygame.draw.polygon(window, self.kleur, self.punten)
 
 #buttons
 battle_img = pygame.image.load('battle_img.png').convert_alpha()
@@ -135,7 +137,7 @@ class GOKU():
             self.surf = self.image_right
         else:
             self.surf = self.image_left
-        if self.rect.y >= scherm_display[1]  or self.rect.x <= 0 or self.rect.x >= scherm_display[0]:
+        if self.rect.y >= scherm_display[1]:
             if self.levens >= 0 :
                 self.rect.x = respawn_pos[0]
                 self.rect.y = respawn_pos[1]
@@ -173,7 +175,7 @@ class GOKU():
             self.rect.x -= snelheid
             self.richting = -1
         if pressed_keys[self.onder]: 
-            if 480 <=self.rect.y <= 500 and 250 <= self.rect.x <= 950: 
+            if 480 <=self.rect.y <= 500 and 0 <= self.rect.x <= 1280: 
                 self.rect.y = 485
             else: 
                 self.rect.y += beneden
@@ -183,22 +185,22 @@ class GOKU():
             else:
                 self.gr = -40
             self.sprong += 1 
-            #rechts
+#rechter platform
         elif 295<= self.rect.y <= 300 and 750 <= self.rect.x <= 1070: 
             self.rect.y = 300 
             self.gr = 0 
             self.sprong = 0
-            #links
+#linker platform
         elif 295<=self.rect.y <= 300 and 140 <= self.rect.x <= 460: 
             self.rect.y = 300 
             self.gr = 0 
             self.sprong = 0
-            #grote platform
-        elif 480 <=self.rect.y <= 500 and 60 <= self.rect.x <= 1140: 
+#grote platform
+        elif 480 <=self.rect.y <= 500 and -40 <= self.rect.x <= 1220: 
             self.rect.y = 485 
             self.gr = 0 
             self.sprong = 0
-            #boven
+#boven platform
         elif 105 <= self.rect.y <= 115 and 420 <= self.rect.x <= 765:
             self.rect.y = 110 
             self.gr = 0 
@@ -250,15 +252,22 @@ figuren = [
     Cirkel(wit, (300, 235), 20), 
     Cirkel(wit, (320, 235), 15),
     Rechthoek(wit, (280, 235), 40, 20),
-    Rechthoek(bruin, (140, 586), 1000, 65), 
-    Rechthoek(gras, (140, 586), 1000, 15),
-    Rechthoek(bruin, (820, 400), 250, 45), 
+#grote platform
+    Rechthoek(bruin, (140, 586), 1000, 65),
+    Polygon(bruin, [(60, 586), (140, 586), (140, 586+65)]),
+    Polygon(bruin, [(1140, 586), (1220, 586), (1140, 586+65)]),
+    Rechthoek(gras, (80, 586), 1120, 15),
+    Polygon(gras, [(58, 586), (79, 586), (79, 586+15)]),
+    Polygon(gras, [(1200, 586), (1221, 586), (1201, 586+15)]),
+#rechter platform
+    Rechthoek(bruin, (820, 400), 250, 45),
     Rechthoek(gras, (820, 400), 250, 12),
-    Rechthoek(bruin, (210, 400), 250, 45), 
+#linker platform
+    Rechthoek(bruin, (210, 400), 250, 45),
     Rechthoek(gras, (210, 400), 250, 12),
+#boven platform
     Rechthoek(bruin, (515,200), 250, 45),
-    Rechthoek(gras, (515,200), 250, 12)]
-    #test Polygon(rood, [(0, 0), (500, 0), (250, 500)])]
+    Rechthoek(gras, (515,200), 250, 12), ]
  
 
 status = "MENU" 

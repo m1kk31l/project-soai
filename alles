@@ -131,6 +131,7 @@ class GOKU():
         self.dashing_cooldown = frame_count * 2
         self.dashing_Ctijd = 0 
         self.levens = 3
+        self.schade = 1
     def update(self,pressed_keys): 
         self.rect.y +=self.gr 
         if self.richting == 1:
@@ -220,10 +221,12 @@ class long_range_att():
     def update(self):
         self.rect.x += (15 * self.direction)
         if self.rect.colliderect(speler_1.rect):
-            speler_1.rect.x += 50*self.direction
+            speler_1.rect.x += 50*self.direction * speler_1.schade
+            speler_1.schade += 0.3
             return True
         if self.rect.colliderect(speler_2.rect):
-            speler_2.rect.x += 50*self.direction     
+            speler_2.rect.x += 50*self.direction * speler_2.schade
+            speler_2.schade += 0.3
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
             return True  # markeer voor verwijdering

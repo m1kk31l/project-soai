@@ -178,7 +178,7 @@ class GOKU():
             self.rect.x -= snelheid
             self.richting = -1
         if pressed_keys[self.onder]: 
-            if 480 <=self.rect.y <= 500 and 0 <= self.rect.x <= 1280: 
+            if 480 <=self.rect.y <= 500 and 140 <= self.rect.x <= 1140: 
                 self.rect.y = 485
             else: 
                 self.rect.y += beneden
@@ -189,28 +189,28 @@ class GOKU():
                 self.gr = -40
             self.sprong += 1 
 #rechter platform
-        elif 295<= self.rect.y <= 300 and 750 <= self.rect.x <= 1070: 
+        elif 285<= self.rect.y <= 300 and 750 <= self.rect.x <= 1070: 
             self.rect.y = 300 
             self.gr = 0 
             self.sprong = 0
 #linker platform
-        elif 295<=self.rect.y <= 300 and 140 <= self.rect.x <= 460: 
+        elif 285<=self.rect.y <= 300 and 140 <= self.rect.x <= 460: 
             self.rect.y = 300 
             self.gr = 0 
             self.sprong = 0
 #grote platform
-        elif 480 <=self.rect.y <= 500 and -40 <= self.rect.x <= 1220: 
+        elif 480 <=self.rect.y <= 550 and -40 <= self.rect.x <= 1220: 
             self.rect.y = 485 
             self.gr = 0 
             self.sprong = 0
 #boven platform
-        elif 105 <= self.rect.y <= 115 and 420 <= self.rect.x <= 765:
+        elif 100 <= self.rect.y <= 115 and 420 <= self.rect.x <= 765:
             self.rect.y = 110 
             self.gr = 0 
             self.sprong = 0
         else: 
             self.gr += 5        
-            self.gr = min(self.gr, 25)
+            self.gr = min(self.gr, 20)
 
  
 class long_range_att():
@@ -223,10 +223,12 @@ class long_range_att():
         self.rect.x += (15 * self.direction)
         if self.rect.colliderect(speler_1.rect):
             speler_1.rect.x += 50*self.direction * speler_1.schade
+            speler_1.rect.y -= 30*speler_1.schade
             speler_1.schade += 0.3
             return True
         if self.rect.colliderect(speler_2.rect):
             speler_2.rect.x += 50*self.direction * speler_2.schade
+            speler_2.rect.y -= 30*speler_2.schade
             speler_2.schade += 0.3
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
@@ -311,8 +313,8 @@ while doorlopen:
         levens_font = pygame.font.SysFont("arial", 50)
         draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
         draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
-        draw_text("%: " + str(speler_1.schade), game_font, zwart, 100, 650)
-        draw_text("%: " + str(speler_2.schade), game_font, zwart, 900, 650)
+        draw_text("%: " + str(speler_1.schade*100), game_font, zwart, 100, 650)
+        draw_text("%: " + str(speler_2.schade*100), game_font, zwart, 900, 650)
         
         
         

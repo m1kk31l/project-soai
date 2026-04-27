@@ -143,6 +143,7 @@ class GOKU():
                 self.rect.x = respawn_pos[0]
                 self.rect.y = respawn_pos[1]
                 self.levens -= 1
+                self.schade = 1
             else:
                 self.levens = 0
                 draw_text("YOU WIN", text_font, groen, 670, 200)
@@ -310,6 +311,8 @@ while doorlopen:
         levens_font = pygame.font.SysFont("arial", 50)
         draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
         draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
+        draw_text("%: " + str(speler_1.schade), game_font, zwart, 100, 650)
+        draw_text("%: " + str(speler_2.schade), game_font, zwart, 900, 650)
         
         
         

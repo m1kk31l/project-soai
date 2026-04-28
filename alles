@@ -224,12 +224,12 @@ class long_range_att():
         if self.rect.colliderect(speler_1.rect):
             speler_1.rect.x += 50*self.direction * speler_1.schade
             speler_1.rect.y -= 30*speler_1.schade
-            speler_1.schade += 0.3
+            speler_1.schade *= 1.17
             return True
         if self.rect.colliderect(speler_2.rect):
             speler_2.rect.x += 50*self.direction * speler_2.schade
             speler_2.rect.y -= 30*speler_2.schade
-            speler_2.schade += 0.3
+            speler_2.schade *= 1.17
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
             return True  # markeer voor verwijdering

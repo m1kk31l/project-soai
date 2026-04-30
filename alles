@@ -104,8 +104,8 @@ respawn_pos = (600,100)
 snelheid = 7
 beneden = 20
 
-controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e]
-controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l]
+controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r]
+controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p]
 class GOKU(): 
     def __init__(self, controller, beginpos): 
         self.image_right = pygame.image.load("GOKU .png")
@@ -117,6 +117,7 @@ class GOKU():
         self.onder = controller[0]
         self.boven = controller[1]
         self.LG_ATT = controller[5]
+        self.Punch = controller[6]
         self.BOOST = controller[4]
         self.sprong = 0
         self.max_sprong = 2
@@ -138,7 +139,7 @@ class GOKU():
             self.surf = self.image_right
         else:
             self.surf = self.image_left
-        if self.rect.y >= scherm_display[1]:
+        if self.rect.y >= scherm_display[1] + 500 or self.rect.y <= -500 or self.rect.x >= scherm_display[0]+200 or self.rect.x <= -200:
             if self.levens >= 2 :
                 self.rect.x = respawn_pos[0]
                 self.rect.y = respawn_pos[1]
@@ -171,6 +172,11 @@ class GOKU():
                 else:
                     projectiel = long_range_att(self.rect.midleft, self.richting)
                     attaque.append(projectiel)
+        if pressed_keys[self.Punch]:
+            if len(punches) < 1:
+                nieuwe_punch = Punch(self)
+                punches.append(nieuwe_punch)
+                
         if pressed_keys[self.rechts]: 
             self.rect.x += snelheid 
             self.richting = 1
@@ -235,6 +241,38 @@ class long_range_att():
             return True  # markeer voor verwijdering
         return False
 
+class Punch():
+    def __init__(self, speler_object):
+        self.surf = pygame.Surface((50,20))
+        self.surf.fill((groen))
+        self.direction = speler_object.richting
+        self.timer = 15
+        if self.direction == 1:
+            self.rect = self.surf.get_rect(midleft = speler_object.rect.midright)
+        else:
+            self.rect = self.surf.get_rect(midright = speler_object.rect.midleft)
+    def update(self):
+        self.timer -= 1
+        #self.rect.x = self.direction
+        if self.rect.colliderect(speler_1.rect):
+            speler_1.rect.x += 90*self.direction * speler_1.schade
+            speler_1.rect.y -= 55*speler_1.schade
+            speler_1.schade *= 1.25
+            return True
+        if self.rect.colliderect(speler_2.rect):
+            speler_2.rect.x += 90*self.direction * speler_2.schade
+            speler_2.rect.y -= 55*speler_2.schade
+            speler_2.schade *= 1.25
+            return True
+        if self.timer <= 0:
+            return True  # markeer voor verwijdering
+        return False
+        
+    
+
+#class machine
+
+
 
 
 speler_1 = GOKU(controller_1, beginpos1)
@@ -244,6 +282,7 @@ alle_spelers = [speler_1, speler_2]
         
 text_font = pygame.font.SysFont("broadway", 100)
 attaque = []
+punches = []
 
 figuren = [
     Cirkel(geel, (1080, 150), 80),
@@ -329,6 +368,12 @@ while doorlopen:
         attaque = [p for p in attaque if not p.update()]
         for projectiel in attaque:
             scherm.blit(projectiel.surf, projectiel.rect)
+            
+        punches = [p for p in punches if not p.update()]
+        for p in punches:
+            scherm.blit(p.surf, p.rect)
+            
+        
 
     pygame.display.flip()
     clock.tick(frame_count)

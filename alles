@@ -50,8 +50,10 @@ class Polygon(Figuur):
         pygame.draw.polygon(window, self.kleur, self.punten)
 
 #buttons
-battle_img = pygame.image.load('battle_img.png').convert_alpha()
+pvp_img = pygame.image.load('pvp_img.png').convert_alpha()
+versusai_img = pygame.image.load('versusai_img.png').convert_alpha()
 exit_img = pygame.image.load('exit_img.png').convert_alpha()
+
 
 
 
@@ -87,8 +89,9 @@ class Button():
         
         return action
         
-battle_button = Button(480,300,battle_img,0.8)  
-exit_button = Button(480,450,exit_img,0.8)
+pvp_button = Button(460,200,pvp_img,0.25)
+versusai_button = Button(435,330,versusai_img,0.3) 
+exit_button = Button(480,550,exit_img,0.8)
     
     
 def draw_text(text,font,text_col,x,y):
@@ -340,6 +343,7 @@ figuren = [
  
 
 status = "MENU" 
+spel_mode = "PVP"
 def startscherm():
     scherm.fill(kleur_menu)
     titel_font = pygame.font.SysFont("modern", 80)
@@ -361,12 +365,16 @@ while doorlopen:
 
     if status == "MENU":
         startscherm()
-        if battle_button.draw(scherm):
+        if pvp_button.draw(scherm):
             status = "GAME"
+            spel_mode = "PVP"
+        if versusai_button.draw(scherm):
+            status = "GAME"
+            spel_mode = "vsAI"
         if exit_button.draw(scherm):
             doorlopen = False
     
-    elif status == "GAME":
+    elif status == "GAME" and spel_mode == "PVP":
         scherm.fill((135, 206, 235))
         for fig in figuren:
             fig.teken(scherm)
@@ -378,14 +386,41 @@ while doorlopen:
         draw_text("%: " + str(speler_1.schade*100), game_font, zwart, 100, 650)
         draw_text("%: " + str(speler_2.schade*100), game_font, zwart, 900, 650)
         
-        
-        
-            
         for speler in alle_spelers:
             speler.update(key_pressed)
             scherm.blit(speler.surf, speler.rect)
+            #titels boven spelers
             draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y-40)
             draw_text("speler 2", game_font,zwart, speler_2.rect.x , speler_2.rect.y-40)
+            
+        
+        attaque = [p for p in attaque if not p.update()]
+        for projectiel in attaque:
+            scherm.blit(projectiel.surf, projectiel.rect)
+            
+        punches = [p for p in punches if not p.update()]
+        for p in punches:
+            scherm.blit(p.surf, p.rect)
+    
+    elif status == "GAME" and spel_mode == "vsAI":
+        scherm.fill((135, 206, 235))
+        for fig in figuren:
+            fig.teken(scherm)
+        game_font = pygame.font.SysFont("arial", 30)
+        draw_text("druk op b voor menu", game_font, zwart, 520, 660)
+        levens_font = pygame.font.SysFont("arial", 50)
+        draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
+        draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
+        draw_text("%: " + str(speler_1.schade*100), game_font, zwart, 100, 650)
+        draw_text("%: " + str(speler_2.schade*100), game_font, zwart, 900, 650)
+        
+          
+        for speler in alle_spelers:
+            speler.update(key_pressed)
+            scherm.blit(speler.surf, speler.rect)
+            #titels boven spelers
+            draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y-40)
+            draw_text("AI_bot 1", game_font,zwart, speler_2.rect.x , speler_2.rect.y-40)
             
         
         attaque = [p for p in attaque if not p.update()]

@@ -167,7 +167,8 @@ class GOKU():
                 self.dashing_Ctijd = 0
         if not self.dashing:
             self.dashing_Ctijd += 1
-        #cooldown voor attacks    
+            
+        #cooldown regels voor attacks    
         if self.lg_cooldown_timer > 0:
             self.lg_cooldown_timer -= 1
         if self.punch_cooldown_timer > 0:
@@ -177,6 +178,7 @@ class GOKU():
             if len(attaque) < 1 and self.lg_cooldown_timer == 0:
                 projectiel = long_range_att(self, self.richting)
                 attaque.append(projectiel)
+                self.freeze_timer = 10
                 self.lg_cooldown_timer = 10
         if pressed_keys[self.Punch]:
             if len(punches) < 1 and self.punch_cooldown_timer == 0:
@@ -249,11 +251,13 @@ class long_range_att():
             speler_1.rect.x += 50*self.direction * speler_1.schade
             speler_1.rect.y -= 30*speler_1.schade
             speler_1.schade *= 1.17
+            speler_1.freeze_timer = 5 #kleine freeze voor speler 2
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             speler_2.rect.x += 50*self.direction * speler_2.schade
             speler_2.rect.y -= 30*speler_2.schade
             speler_2.schade *= 1.17
+            speler_2.freeze_timer = 5 #kleine freeze voor speler 1
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
             return True  # markeer voor verwijdering

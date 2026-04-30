@@ -297,8 +297,9 @@ class Punch():
         
     
 
-#class machine (ai)
-
+class GOKU_AI(GOKU):
+    def update_ai(self):
+        keys_pressed = [0]
 
 
 speler_1 = GOKU(controller_1, beginpos1)
@@ -366,13 +367,21 @@ while doorlopen:
     if status == "MENU":
         startscherm()
         if pvp_button.draw(scherm):
+            speler_1 = GOKU(controller_1, beginpos1)
+            speler_2 = GOKU(controller_2, beginpos2)
+            alle_spelers = [speler_1, speler_2]
             status = "GAME"
             spel_mode = "PVP"
+            
         if versusai_button.draw(scherm):
+            speler_1 = GOKU(controller_1, beginpos1)
+            speler_2 = GOKU_AI(controller_2, beginpos2)
+            alle_spelers = [speler_1, speler_2]
             status = "GAME"
             spel_mode = "vsAI"
+            
         if exit_button.draw(scherm):
-            doorlopen = False
+             doorlopen = False
     
     elif status == "GAME" and spel_mode == "PVP":
         scherm.fill((135, 206, 235))

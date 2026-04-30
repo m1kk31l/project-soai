@@ -100,7 +100,7 @@ platform_L = (210,400,250,12)
 platform_R = (210,400,250,45)
 beginpos1 = (400,500)
 beginpos2 = (800,500)
-respawn_pos = (600,100)
+respawn_pos = (600,200)
 snelheid = 7
 beneden = 20
 
@@ -134,6 +134,8 @@ class GOKU():
         self.levens = 3
         self.schade = 1
         self.freeze_timer = 0
+        self.lg_cooldown_timer = 0
+        self.punch_cooldown_timer = 0
     def update(self,pressed_keys): 
         self.rect.y +=self.gr 
         if self.richting == 1:
@@ -165,15 +167,23 @@ class GOKU():
                 self.dashing_Ctijd = 0
         if not self.dashing:
             self.dashing_Ctijd += 1
+        #cooldown voor attacks    
+        if self.lg_cooldown_timer > 0:
+            self.lg_cooldown_timer -= 1
+        if self.punch_cooldown_timer > 0:
+            self.punch_cooldown_timer -= 1
+            
         if pressed_keys[self.LG_ATT]:
-            if len(attaque) < 1:
+            if len(attaque) < 1 and self.lg_cooldown_timer == 0:
                 projectiel = long_range_att(self, self.richting)
                 attaque.append(projectiel)
+                self.lg_cooldown_timer = 10
         if pressed_keys[self.Punch]:
-            if len(punches) < 1:
+            if len(punches) < 1 and self.punch_cooldown_timer == 0:
                 nieuwe_punch = Punch(self)
                 punches.append(nieuwe_punch)
                 self.freeze_timer = 20
+                self.punch_cooldown_timer = 30
                 
         if self.freeze_timer > 0:
             self.freeze_timer -= 1

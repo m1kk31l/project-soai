@@ -365,16 +365,6 @@ class GOKU():
  
             if pressed_keys[self.onder]:
                 self.rect.y += beneden
-
-class HOMELANDER(GOKU):
-    def __init__(self, controller, beginpos):
-        super().__init__(controller, beginpos)
-        self.image_right = pygame.image.load("HOMELANDER.png").convert_alpha()
-        self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()
-        
-        
-    def update(self, pressed_keys):
-        super().update(pressed_keys)
         
     
 class long_range_att():
@@ -558,6 +548,19 @@ class GOKU_AI(GOKU):
             if len(punches) < 1 and self.punch_cooldown_timer == 0:
                 punches.append(Punch(self))
                 self.punch_cooldown_timer = 30
+                
+"""               
+class HOMELANDER(GOKU):
+    def __init__(self, controller, beginpos):
+        super().__init__(controller, beginpos)
+        self.image_right = pygame.image.load("HOMELANDER.png").convert_alpha()
+        self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()      
+        
+        
+    def update(self, pressed_keys):
+        super().update(pressed_keys)
+        
+"""
  
  
 speler_1 = GOKU(controller_1, beginpos1)
@@ -683,7 +686,7 @@ while doorlopen:
         scherm.blit(menu_img,(0,0))
         startscherm()
         if pvp_button.draw(scherm):
-            speler_1 = HOMELANDER(controller_1, beginpos1)
+            speler_1 = GOKU(controller_1, beginpos1)
             speler_2 = GOKU(controller_2, beginpos2)
             alle_spelers = [speler_1, speler_2]
             attaque.clear()

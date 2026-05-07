@@ -318,8 +318,18 @@ class GOKU():
  
             if pressed_keys[self.onder]:
                 self.rect.y += beneden
- 
- 
+
+class HOMELANDER(GOKU):
+    def __init__(self, controller, beginpos):
+        super().__init__(controller, beginpos)
+        self.image_right = pygame.image.load("HOMELANDER.png").convert_alpha()
+        self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()
+        
+        
+    def update(self, pressed_keys):
+        super().update(pressed_keys)
+        
+    
 class long_range_att():
     def __init__(self, speler_object, direction):
         self.eigenaar = speler_object
@@ -480,7 +490,8 @@ class Shield:
         if self.active:
             radius = (40 * (self.energy / self.max_energy))
             pygame.draw.circle(scherm, blauw, self.eigenaar.rect.center, radius, 3)
- 
+
+
 class GOKU_AI(GOKU):
     def update_ai(self):
         if self.rect.x < speler_1.rect.x:
@@ -612,7 +623,7 @@ while doorlopen:
         scherm.blit(menu_img,(0,0))
         startscherm()
         if pvp_button.draw(scherm):
-            speler_1 = GOKU(controller_1, beginpos1)
+            speler_1 = HOMELANDER(controller_1, beginpos1)
             speler_2 = GOKU(controller_2, beginpos2)
             alle_spelers = [speler_1, speler_2]
             attaque.clear()

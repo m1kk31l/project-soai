@@ -40,8 +40,8 @@ exit_img = pygame.image.load('exit_img.png').convert_alpha()
 menu_img_2 = pygame.image.load("menu_img.jpg").convert()
 menu_img = pygame.transform.scale(menu_img_2, (1280, 720))
  
-controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r]
-controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p]
+controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_t]
+controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p, pygame.K_o]
 
  
  
@@ -132,7 +132,58 @@ class Cooldown:
     def klaar(self):
         return self.timer >= self.max_tijd
  
- 
+class GamecubeController:
+    def __init__(self, joystick_id=0):
+        pygame.joystick.init()
+        self.joystick = pygame.joystick.Joystick(joystick_id)
+        self.joystick.init()
+
+        # axes
+        self.axis_x = 0
+        self.axis_y = 1
+
+        # boutons (à adapter selon ton setup)
+        self.BUTTON_A = 0
+        self.BUTTON_B = 1
+        self.BUTTON_X = 2
+        self.BUTTON_Y = 3
+        self.BUTTON_L = 4
+        self.BUTTON_R = 5
+
+    def get_inputs(self):
+        inputs = {
+            "left": False,
+            "right": False,
+            "up": False,
+            "down": False,
+            "jump": False,
+            "attack": False,
+            "special": False,
+            "dash": False
+        }
+
+        x = self.joystick.get_axis(self.axis_x)
+        y = self.joystick.get_axis(self.axis_y)
+
+        # stick
+        if x < -0.5:
+            inputs["left"] = True
+        if x > 0.5:
+            inputs["right"] = True
+        if y < -0.5:
+            inputs["up"] = True
+        if y > 0.5:
+            inputs["down"] = True
+
+        # boutons
+        inputs["jump"] = self.joystick.get_button(self.BUTTON_A)
+        inputs["attack"] = self.joystick.get_button(self.BUTTON_B)
+        inputs["special"] = self.joystick.get_button(self.BUTTON_X)
+        inputs["dash"] = self.joystick.get_button(self.BUTTON_R)
+
+        return inputs
+
+
 class GOKU():
     def __init__(self, controller, beginpos):
         self.image_right = pygame.image.load("GOKU .png")
@@ -147,6 +198,7 @@ class GOKU():
         self.LG_ATT = controller[5]
         self.Punch = controller[6]
         self.BOOST = controller[4]
+        self.charged = controller[7]
         self.sprong = 0
         self.max_sprong = 2
         self.rect = self.surf.get_rect()
@@ -159,12 +211,16 @@ class GOKU():
         self.dashing_maxtijd = frame_count * 0.15
         self.dash_cooldown = Cooldown(frame_count * 2)
         self.levens = 3
-        self.schade = 1
+        self.schade = 0.01
         self.freeze_timer = 0
         self.punch_cooldown_timer = 0
+        self.cooldown_LG = Cooldown(frame_count*1)
+        self.charge_attack = ChargeAttack(self)
+        self.was_charging = False
         self.kb_x = 0
         self.kb_y = 0
         self.wrijving = 0.95
+        self.cooldown = 2*frame_count
  
     def update(self, pressed_keys):
         self.op_grond = False
@@ -215,13 +271,26 @@ class GOKU():
             else:
                 self.dashing = False
  
-        if pressed_keys[self.LG_ATT]:
-            if len(attaque) < 1:
-                attaque.append(long_range_att(self, self.richting))
+        self.cooldown_LG.update()
+        if pressed_keys[self.LG_ATT] and self.cooldown_LG.gebruik():
+            attaque.append(long_range_att(self, self.richting))
  
         if self.punch_cooldown_timer > 0:
             self.punch_cooldown_timer -= 1
- 
+            
+        if pressed_keys[self.charged]:
+            self.charge_attack.start()
+            self.was_charging = True
+        else:
+            if self.was_charging:
+                projectile = self.charge_attack.release()
+                if projectile:
+                    attaque.append(projectile)
+            self.was_charging = False
+
+        self.charge_attack.update()
+        
+        
         if pressed_keys[self.Punch]:
             if len(punches) < 1 and self.punch_cooldown_timer == 0:
                 punches.append(Punch(self))
@@ -267,13 +336,13 @@ class long_range_att():
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
             speler_1.kb_x = 1 * self.direction * speler_1.schade
             speler_1.kb_y = -0.625 * speler_1.schade
-            speler_1.schade *= 1.17
+            speler_1.schade *= 20
             speler_1.freeze_timer = 5
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             speler_2.kb_x += 1 * self.direction * speler_2.schade
             speler_2.kb_y -= -0.625 * speler_2.schade
-            speler_2.schade *= 1.17
+            speler_2.schade *= 20
             speler_2.freeze_timer = 5
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
@@ -310,7 +379,107 @@ class Punch():
         if self.timer <= 0:
             return True
         return False
- 
+
+
+class ChargeAttack:
+    def __init__(self, speler_object):
+        self.eigenaar = speler_object
+        self.charging = False
+        self.charge_time = 0
+        self.max_charge = 2*frame_count
+
+    def start(self):
+        if not self.charging:
+            self.charging = True
+            self.charge_time = 0
+
+    def update(self):
+        if self.charging:
+            self.charge_time += 1
+            self.charge_time = min(self.charge_time, self.max_charge)
+
+    def release(self):
+        if self.charging:
+            power = self.charge_time / self.max_charge
+            self.charging = False
+            return ChargedProjectile(self.eigenaar, power)
+        return None
+
+class ChargedProjectile:
+    def __init__(self, speler, power):
+        self.eigenaar = speler
+        self.power = power
+        self.direction = speler.richting
+
+        size = int(20 + 40 * power)
+        self.surf = pygame.Surface((size, size))
+        self.surf.fill(rood)
+
+        if self.direction == 1:
+            self.rect = self.surf.get_rect(midleft=speler.rect.midright)
+        else:
+            self.rect = self.surf.get_rect(midright=speler.rect.midleft)
+
+        self.speed = 10 + 10 * power
+
+    def update(self):
+        self.rect.x += self.speed * self.direction
+
+        if self.eigenaar != speler_1 :
+            target = speler_1
+        else:
+            target = speler_2
+
+        if self.rect.colliderect(target.rect):
+            if target.shield.take_hit(10 * self.power):
+                return True 
+            knockback = 50 + 200 * self.power
+            target.rect.x += knockback * self.direction * target.schade
+            target.rect.y -= (10 + 100 * self.power) * target.schade
+            target.schade *= (1.5 + self.power)
+            target.freeze_timer = int(10 + 20 * self.power)
+            return True
+
+        if self.rect.right < 0 or self.rect.left > 1280:
+            return True
+
+        return False
+
+class Shield:
+    def __init__(self, speler):
+        self.eigenaar = speler
+        self.active = False
+        self.max_energy = 2*frame_count
+        self.energy = self.max_energy
+        self.regen_speed = 0.5
+        self.drain_speed = 1.5
+        self.broken = False
+        self.break_timer = 0
+
+    def update(self, holding):
+        if self.broken:
+            self.break_timer -= 1
+            if self.break_timer <= 0:
+                self.broken = False
+                self.energy = self.max_energy * 0.5
+        if holding and self.energy > 0:
+            self.active = True
+            self.energy -= self.drain_speed
+            if self.energy <= 0:
+                self.energy = 0
+                self.broken = True
+                self.break_timer = 120
+                self.active = False
+        else:
+            self.active = False
+            if self.energy < self.max_energy:
+                self.energy += self.regen_speed
+                self.energy = min(self.energy, self.max_energy)
+
+    def draw(self, scherm):
+        if self.active:
+            radius = (40 * (self.energy / self.max_energy))
+            pygame.draw.circle(scherm, blauw, self.eigenaar.rect.center, radius, 3)
  
 class GOKU_AI(GOKU):
     def update_ai(self):

@@ -1,4 +1,6 @@
 import pygame
+import random
+
 pygame.init()
 pygame.display.set_caption("NOT SUPER SMASH BROS")
  
@@ -35,10 +37,52 @@ platforms = [
 pvp_img = pygame.image.load('pvp_img.png').convert_alpha()
 versusai_img = pygame.image.load('versusai_img.png').convert_alpha()
 exit_img = pygame.image.load('exit_img.png').convert_alpha()
+menu_img_2 = pygame.image.load("menu_img.jpg").convert()
+menu_img = pygame.transform.scale(menu_img_2, (1280, 720))
  
-controller_1 = [pygame.K_s, pygame.K_z, pygame.K_q, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_a, pygame.K_w]
-controller_2 = [pygame.K_k, pygame.K_i, pygame.K_j, pygame.K_l, pygame.K_RSHIFT, pygame.K_u, pygame.K_p, pygame.K_m, pygame.K_y]
+controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_t, pygame.K_y]
+controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p, pygame.K_o, pygame.K_k]
+
  
+ 
+class Figuur:
+    def __init__(self, kleur):
+        self.kleur = kleur
+ 
+    def teken(self, window):
+        pass
+ 
+ 
+class Cirkel(Figuur):
+    def __init__(self, kleur, middelpunt, r):
+        super().__init__(kleur)
+        self.middelpunt = middelpunt
+        self.r = r
+ 
+    def teken(self, window):
+        pygame.draw.circle(window, self.kleur, self.middelpunt, self.r)
+ 
+ 
+class Rechthoek(Figuur):
+    def __init__(self, kleur, middelpunt, breedte, hoogte):
+        super().__init__(kleur)
+        self.middelpunt = middelpunt
+        self.breedte = breedte
+        self.hoogte = hoogte
+ 
+    def teken(self, window):
+        pygame.draw.rect(window, self.kleur,
+                         (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
+ 
+ 
+class Polygon(Figuur):
+    def __init__(self, kleur, punten):
+        super().__init__(kleur)
+        self.punten = punten
+ 
+    def teken(self, window):
+        pygame.draw.polygon(window, self.kleur, self.punten)
+
 class Shield:
     def __init__(self, speler):
         self.eigenaar = speler
@@ -81,45 +125,6 @@ class Shield:
     def draw(self, scherm):
         if self.active:
             pygame.draw.circle(scherm, blauw, self.eigenaar.rect.center, 50, 300)
-            
-class Figuur:
-    def __init__(self, kleur):
-        self.kleur = kleur
- 
-    def teken(self, window):
-        pass
- 
- 
-class Cirkel(Figuur):
-    def __init__(self, kleur, middelpunt, r):
-        super().__init__(kleur)
-        self.middelpunt = middelpunt
-        self.r = r
- 
-    def teken(self, window):
-        pygame.draw.circle(window, self.kleur, self.middelpunt, self.r)
- 
- 
-class Rechthoek(Figuur):
-    def __init__(self, kleur, middelpunt, breedte, hoogte):
-        super().__init__(kleur)
-        self.middelpunt = middelpunt
-        self.breedte = breedte
-        self.hoogte = hoogte
- 
-    def teken(self, window):
-        pygame.draw.rect(window, self.kleur,
-                         (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
- 
- 
-class Polygon(Figuur):
-    def __init__(self, kleur, punten):
-        super().__init__(kleur)
-        self.punten = punten
- 
-    def teken(self, window):
-        pygame.draw.polygon(window, self.kleur, self.punten)
- 
  
 class Button():
     def __init__(self, x, y, image, scale):
@@ -146,11 +151,10 @@ class Button():
         window.blit(self.image, (self.rect.x, self.rect.y))
         return action
  
- 
-exit_button = Button(480, 540, exit_img, 0.8)
-pvp_button = Button(460, 200, pvp_img, 0.25)
-versusai_button = Button(435, 330, versusai_img, 0.3)
- 
+exit_button = Button(460, 460, exit_img, 0.3)
+versusai_button = Button(460, 330, versusai_img, 0.3)
+pvp_button = Button(450, 180, pvp_img, 0.3)
+
  
 class Cooldown:
     def __init__(self, max_tijd):
@@ -169,7 +173,7 @@ class Cooldown:
  
     def klaar(self):
         return self.timer >= self.max_tijd
-
+ 
 class GamecubeController:
     def __init__(self, joystick_id=0):
         pygame.joystick.init()
@@ -220,9 +224,8 @@ class GamecubeController:
         inputs["dash"] = self.joystick.get_button(self.BUTTON_R)
 
         return inputs
-    
- 
- 
+
+
 class GOKU():
     def __init__(self, controller, beginpos):
         self.image_right = pygame.image.load("GOKU .png")
@@ -236,7 +239,7 @@ class GOKU():
         self.boven_ingedrukt = False
         self.LG_ATT = controller[5]
         self.Punch = controller[6]
-        self.BOOST = controller[4]        
+        self.BOOST = controller[4]
         self.charged = controller[7]
         self.SHIELD = controller[8]
         self.sprong = 0
@@ -257,16 +260,26 @@ class GOKU():
         self.cooldown_LG = Cooldown(frame_count*1)
         self.charge_attack = ChargeAttack(self)
         self.was_charging = False
+        self.kb_x = 0
+        self.kb_y = 0
+        self.wrijving = 0.95
+        self.cooldown = 2*frame_count
         self.shield = Shield(self)
-        
-        
  
     def update(self, pressed_keys):
         self.op_grond = False
+        
+        self.rect.x += self.kb_x
+        self.rect.y += self.kb_y
+
+        self.kb_x *= self.wrijving
+        self.kb_y *= self.wrijving
 
         self.gr += 5
         self.gr = min(self.gr, 25)
         self.rect.y += self.gr
+        
+        
 
         for (x_min, x_max, y_land, y_check_min, y_check_max) in platforms:
             if y_check_min <= self.rect.bottom <= y_check_max and self.rect.right >= x_min and self.rect.left <= x_max and self.gr >= 0:
@@ -301,19 +314,21 @@ class GOKU():
                 self.dashing_tijd += 1
             else:
                 self.dashing = False
+ 
         self.cooldown_LG.update()
         if pressed_keys[self.LG_ATT] and self.cooldown_LG.gebruik():
             attaque.append(long_range_att(self, self.richting))
-            
-        
+ 
         if self.punch_cooldown_timer > 0:
             self.punch_cooldown_timer -= 1
- 
+        
         if pressed_keys[self.Punch]:
-            if len(punches) < 1 and self.punch_cooldown_timer == 0:
-                attaque.append(Punch(self))
-                self.freeze_timer = 20
-                self.punch_cooldown_timer = 30
+           if len(punches) < 1 and self.punch_cooldown_timer == 0:
+               attaque.append(Punch(self))
+               self.freeze_timer = 20
+               self.punch_cooldown_timer = 30    
+        
+        
         if pressed_keys[self.charged]:
             self.charge_attack.start()
             self.was_charging = True
@@ -325,6 +340,8 @@ class GOKU():
             self.was_charging = False
 
         self.charge_attack.update()
+        
+        
         self.shield.update(pressed_keys[self.SHIELD])
  
         if self.freeze_timer > 0:
@@ -348,36 +365,45 @@ class GOKU():
  
             if pressed_keys[self.onder]:
                 self.rect.y += beneden
- 
- 
+
+class HOMELANDER(GOKU):
+    def __init__(self, controller, beginpos):
+        super().__init__(controller, beginpos)
+        self.image_right = pygame.image.load("HOMELANDER.png").convert_alpha()
+        self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()
+        
+        
+    def update(self, pressed_keys):
+        super().update(pressed_keys)
+        
+    
 class long_range_att():
     def __init__(self, speler_object, direction):
         self.eigenaar = speler_object
         self.surf = pygame.Surface((20, 20))
         self.surf.fill(blauw)
         self.direction = direction
-        
         if direction == 1:
             self.rect = self.surf.get_rect(midleft=speler_object.rect.midright)
         else:
             self.rect = self.surf.get_rect(midright=speler_object.rect.midleft)
-        
+ 
     def update(self):
         self.rect.x += (15 * self.direction)
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            if speler_1.shield.take_hit(10 ):
+            if speler_1.shield.take_hit(10):
                 return True 
-            speler_1.rect.x += 50 * self.direction * speler_1.schade
-            speler_1.rect.y -= 30 * speler_1.schade
+            speler_1.kb_x = 1 * self.direction * speler_1.schade
+            speler_1.kb_y = -0.625 * speler_1.schade
             speler_1.schade *= 20
             speler_1.freeze_timer = 5
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             if speler_2.shield.take_hit(10):
-                return True 
-            speler_2.rect.x += 50 * self.direction * speler_2.schade
-            speler_2.rect.y -= 30 * speler_2.schade
-            speler_2.schade *= 1.17
+                return True
+            speler_2.kb_x += 1 * self.direction * speler_2.schade
+            speler_2.kb_y -= -0.625 * speler_2.schade
+            speler_2.schade *= 20
             speler_2.freeze_timer = 5
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
@@ -396,28 +422,25 @@ class Punch():
             self.rect = self.surf.get_rect(midleft=speler_object.rect.midright)
         else:
             self.rect = self.surf.get_rect(midright=speler_object.rect.midleft)
-        self.cooldown = 2*frame_count
+ 
     def update(self):
         self.timer -= 1
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            if speler_1.shield.take_hit(10):
-                return True 
-            speler_1.rect.x += 150 * self.direction * speler_1.schade
-            speler_1.rect.y -= 50 * speler_1.schade
-            speler_1.schade *= 500
+            speler_1.kb_x += 5 * self.direction * speler_1.schade
+            speler_1.kb_y -= -2.5 * speler_1.schade
+            speler_1.schade *= 2
             speler_1.freeze_timer = 10
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
-            if speler_2.shield.take_hit(10 ):
-                return True 
-            speler_2.rect.x += 150 * self.direction * speler_2.schade
-            speler_2.rect.y -= 50 * speler_2.schade
+            speler_2.kb_x += 5 * self.direction * speler_2.schade
+            speler_2.kb_y -= -2.5 * speler_2.schade
             speler_2.schade *= 2
             speler_2.freeze_timer = 10
             return True
         if self.timer <= 0:
             return True
         return False
+
 
 class ChargeAttack:
     def __init__(self, speler_object):
@@ -483,8 +506,43 @@ class ChargedProjectile:
 
         return False
 
+class Shield:
+    def __init__(self, speler):
+        self.eigenaar = speler
+        self.active = False
+        self.max_energy = 2*frame_count
+        self.energy = self.max_energy
+        self.regen_speed = 0.5
+        self.drain_speed = 1.5
+        self.broken = False
+        self.break_timer = 0
 
- 
+    def update(self, holding):
+        if self.broken:
+            self.break_timer -= 1
+            if self.break_timer <= 0:
+                self.broken = False
+                self.energy = self.max_energy * 0.5
+        if holding and self.energy > 0:
+            self.active = True
+            self.energy -= self.drain_speed
+            if self.energy <= 0:
+                self.energy = 0
+                self.broken = True
+                self.break_timer = 120
+                self.active = False
+        else:
+            self.active = False
+            if self.energy < self.max_energy:
+                self.energy += self.regen_speed
+                self.energy = min(self.energy, self.max_energy)
+
+    def draw(self, scherm):
+        if self.active:
+            radius = (40 * (self.energy / self.max_energy))
+            pygame.draw.circle(scherm, blauw, self.eigenaar.rect.center, radius, 3)
+
+
 class GOKU_AI(GOKU):
     def update_ai(self):
         if self.rect.x < speler_1.rect.x:
@@ -500,7 +558,6 @@ class GOKU_AI(GOKU):
             if len(punches) < 1 and self.punch_cooldown_timer == 0:
                 punches.append(Punch(self))
                 self.punch_cooldown_timer = 30
-                
  
  
 speler_1 = GOKU(controller_1, beginpos1)
@@ -552,7 +609,6 @@ def draw_text(text, font, text_col, x, y):
  
  
 def startscherm():
-    scherm.fill(kleur_menu)
     titel_font = pygame.font.SysFont("modern", 80)
     draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 290, 150)
  
@@ -574,7 +630,6 @@ def teken_game(spel_mode):
     naam_s2 = "AI_bot 1" if spel_mode == "vsAI" else "speler 2"
  
     for speler in alle_spelers:
-        speler.shield.draw(scherm)
         if isinstance(speler, GOKU_AI):
             speler.update_ai()
         speler.update(key_pressed)
@@ -600,15 +655,16 @@ def teken_game(spel_mode):
     attaque = new_attack
     for projectiel in attaque:
         scherm.blit(projectiel.surf, projectiel.rect)
+ 
     new_punch = []
     for p in punches:
         if not p.update():
             new_punch.append(p)
 
     punches = new_punch
-
     for p in punches:
         scherm.blit(p.surf, p.rect)
+ 
  
 doorlopen = True
 while doorlopen:
@@ -624,9 +680,10 @@ while doorlopen:
                 punches.clear()
  
     if status == "MENU":
+        scherm.blit(menu_img,(0,0))
         startscherm()
         if pvp_button.draw(scherm):
-            speler_1 = GOKU(controller_1, beginpos1)
+            speler_1 = HOMELANDER(controller_1, beginpos1)
             speler_2 = GOKU(controller_2, beginpos2)
             alle_spelers = [speler_1, speler_2]
             attaque.clear()

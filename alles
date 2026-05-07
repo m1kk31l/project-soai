@@ -37,6 +37,8 @@ platforms = [
 pvp_img = pygame.image.load('pvp_img.png').convert_alpha()
 versusai_img = pygame.image.load('versusai_img.png').convert_alpha()
 exit_img = pygame.image.load('exit_img.png').convert_alpha()
+menu_img_2 = pygame.image.load("menu_img.jpg").convert()
+menu_img = pygame.transform.scale(menu_img_2, (1280, 720))
  
 controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r]
 controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p]
@@ -107,11 +109,10 @@ class Button():
         window.blit(self.image, (self.rect.x, self.rect.y))
         return action
  
- 
-
 exit_button = Button(460, 460, exit_img, 0.3)
 versusai_button = Button(460, 330, versusai_img, 0.3)
 pvp_button = Button(450, 180, pvp_img, 0.3)
+
  
 class Cooldown:
     def __init__(self, max_tijd):
@@ -366,7 +367,6 @@ def draw_text(text, font, text_col, x, y):
  
  
 def startscherm():
-    scherm.fill(kleur_menu)
     titel_font = pygame.font.SysFont("modern", 80)
     draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 290, 150)
  
@@ -429,6 +429,7 @@ while doorlopen:
                 punches.clear()
  
     if status == "MENU":
+        scherm.blit(menu_img,(0,0))
         startscherm()
         if pvp_button.draw(scherm):
             speler_1 = GOKU(controller_1, beginpos1)

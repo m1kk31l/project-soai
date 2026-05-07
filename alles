@@ -43,46 +43,6 @@ menu_img = pygame.transform.scale(menu_img_2, (1280, 720))
 controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_t, pygame.K_y]
 controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p, pygame.K_o, pygame.K_k]
 
- 
- 
-class Figuur:
-    def __init__(self, kleur):
-        self.kleur = kleur
- 
-    def teken(self, window):
-        pass
- 
- 
-class Cirkel(Figuur):
-    def __init__(self, kleur, middelpunt, r):
-        super().__init__(kleur)
-        self.middelpunt = middelpunt
-        self.r = r
- 
-    def teken(self, window):
-        pygame.draw.circle(window, self.kleur, self.middelpunt, self.r)
- 
- 
-class Rechthoek(Figuur):
-    def __init__(self, kleur, middelpunt, breedte, hoogte):
-        super().__init__(kleur)
-        self.middelpunt = middelpunt
-        self.breedte = breedte
-        self.hoogte = hoogte
- 
-    def teken(self, window):
-        pygame.draw.rect(window, self.kleur,
-                         (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
- 
- 
-class Polygon(Figuur):
-    def __init__(self, kleur, punten):
-        super().__init__(kleur)
-        self.punten = punten
- 
-    def teken(self, window):
-        pygame.draw.polygon(window, self.kleur, self.punten)
-
 class Shield:
     def __init__(self, speler):
         self.eigenaar = speler
@@ -125,6 +85,44 @@ class Shield:
     def draw(self, scherm):
         if self.active:
             pygame.draw.circle(scherm, blauw, self.eigenaar.rect.center, 50, 300)
+ 
+class Figuur:
+    def __init__(self, kleur):
+        self.kleur = kleur
+ 
+    def teken(self, window):
+        pass
+ 
+ 
+class Cirkel(Figuur):
+    def __init__(self, kleur, middelpunt, r):
+        super().__init__(kleur)
+        self.middelpunt = middelpunt
+        self.r = r
+ 
+    def teken(self, window):
+        pygame.draw.circle(window, self.kleur, self.middelpunt, self.r)
+ 
+ 
+class Rechthoek(Figuur):
+    def __init__(self, kleur, middelpunt, breedte, hoogte):
+        super().__init__(kleur)
+        self.middelpunt = middelpunt
+        self.breedte = breedte
+        self.hoogte = hoogte
+ 
+    def teken(self, window):
+        pygame.draw.rect(window, self.kleur,
+                         (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
+ 
+ 
+class Polygon(Figuur):
+    def __init__(self, kleur, punten):
+        super().__init__(kleur)
+        self.punten = punten
+ 
+    def teken(self, window):
+        pygame.draw.polygon(window, self.kleur, self.punten)
  
 class Button():
     def __init__(self, x, y, image, scale):
@@ -598,10 +596,12 @@ def teken_game(spel_mode):
     naam_s2 = "AI_bot 1" if spel_mode == "vsAI" else "speler 2"
  
     for speler in alle_spelers:
+        speler.shield.draw(scherm)
         if isinstance(speler, GOKU_AI):
             speler.update_ai()
         speler.update(key_pressed)
         scherm.blit(speler.surf, speler.rect)
+    
  
     draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y - 40)
     draw_text(naam_s2, game_font, zwart, speler_2.rect.x, speler_2.rect.y - 40)

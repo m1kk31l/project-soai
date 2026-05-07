@@ -2,115 +2,137 @@ import pygame
 pygame.init()
 pygame.display.set_caption("NOT SUPER SMASH BROS")
  
-scherm_display = (1280,720)
+scherm_display = (1280, 720)
 scherm = pygame.display.set_mode(scherm_display)
 frame_count = 60.0
 clock = pygame.time.Clock()
  
-
 # kleuren
-zwart = (0,0,0)
-wit = (255,255,255)
-groen = (0,255,0)
-rood = (255,0,0)
-geel = (255,223,0)
-bruin = (160,82,45)
-gras = (124,252,0)
-blauw = (0,0,255)
-kleur_menu = (200,20,20)
+zwart = (0, 0, 0)
+wit = (255, 255, 255)
+groen = (0, 255, 0)
+rood = (255, 0, 0)
+geel = (255, 223, 0)
+bruin = (160, 82, 45)
+gras = (124, 252, 0)
+blauw = (0, 0, 255)
+kleur_menu = (200, 20, 20)
+ 
 
-class Figuur:
-    def __init__(self, kleur):
-        self.kleur = kleur
-    def teken(self, window):
-        pass
-
-class Cirkel(Figuur):
-    def __init__(self, kleur, middelpunt, r):
-        super().__init__(kleur)
-        self.middelpunt = middelpunt
-        self.r = r
-    def teken(self, window):
-        pygame.draw.circle(window, self.kleur, self.middelpunt, self.r)
-
-class Rechthoek(Figuur):
-    def __init__(self, kleur, middelpunt, breedte, hoogte):
-        super().__init__(kleur)
-        self.middelpunt = middelpunt
-        self.breedte = breedte
-        self.hoogte = hoogte
-    def teken(self, window):
-        pygame.draw.rect(window, self.kleur, (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
-
-class Polygon(Figuur):
-    def __init__(self,kleur,punten):
-        super().__init__(kleur)
-        self.punten = punten
-    def teken(self, window):
-        pygame.draw.polygon(window, self.kleur, self.punten)
-
-#buttons
-pvp_img = pygame.image.load('pvp_img.png').convert_alpha()
-versusai_img = pygame.image.load('versusai_img.png').convert_alpha()
-exit_img = pygame.image.load('exit_img.png').convert_alpha()
-
-
-
-
-class Button():
-    def __init__(self,x,y,image,scale):
-        width = int(image.get_width()*scale)
-        height = int(image.get_height()*scale)
-        self.image = pygame.transform.scale(image,(width, height))
-        zichtbare_rect = self.image.get_bounding_rect() # de transparente achtergrond negeren
-        new_surf = pygame.Surface(zichtbare_rect.size, pygame.SRCALPHA) #SRCALPHA = pixel per alpha transparency
-        new_surf.blit(self.image, (0, 0), zichtbare_rect)
-        self.image = new_surf
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.clicked = False
-
-    def draw(self,window):
-        action = False
-        #muis
-        pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
-                # [0] = linker knop
-                self.clicked == True
-                action = True
-                
-            
-            if pygame.mouse.get_pressed()[0] == 0:
-                self.clicked = False
-            
-        #teken de knop op het scherm
-        window.blit(self.image, (self.rect.x, self.rect.y))
-        
-        return action
-        
-pvp_button = Button(460,200,pvp_img,0.25)
-versusai_button = Button(435,330,versusai_img,0.3) 
-exit_button = Button(480,550,exit_img,0.8)
-    
-    
-def draw_text(text,font,text_col,x,y):
-    img = font.render(text,True,text_col)
-    scherm.blit(img,(x,y))
-
-platform_C = (320,586,630,65)
-platform_L = (210,400,250,12)
-platform_R = (210,400,250,45)
 beginpos1 = (400,500)
 beginpos2 = (800,500)
 respawn_pos = (600,200)
 snelheid = 7
 beneden = 20
 
-controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r]
-controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p]
-class GOKU(): 
-    def __init__(self, controller, beginpos): 
+ 
+platforms = [
+    (140, 1140, 586, 560, 620),
+    (210, 460, 400, 370, 420),
+    (820, 1070, 400, 370, 420),
+    (515, 765, 200, 170, 220)]
+ 
+pvp_img = pygame.image.load('pvp_img.png').convert_alpha()
+versusai_img = pygame.image.load('versusai_img.png').convert_alpha()
+battle_img = pygame.image.load('battle_img.png').convert_alpha()
+exit_img = pygame.image.load('exit_img.png').convert_alpha()
+ 
+controller_1 = [pygame.K_s, pygame.K_z, pygame.K_q, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r]
+controller_2 = [pygame.K_k, pygame.K_i, pygame.K_j, pygame.K_l, pygame.K_RSHIFT, pygame.K_u, pygame.K_p]
+ 
+ 
+class Figuur:
+    def __init__(self, kleur):
+        self.kleur = kleur
+ 
+    def teken(self, window):
+        pass
+ 
+ 
+class Cirkel(Figuur):
+    def __init__(self, kleur, middelpunt, r):
+        super().__init__(kleur)
+        self.middelpunt = middelpunt
+        self.r = r
+ 
+    def teken(self, window):
+        pygame.draw.circle(window, self.kleur, self.middelpunt, self.r)
+ 
+ 
+class Rechthoek(Figuur):
+    def __init__(self, kleur, middelpunt, breedte, hoogte):
+        super().__init__(kleur)
+        self.middelpunt = middelpunt
+        self.breedte = breedte
+        self.hoogte = hoogte
+ 
+    def teken(self, window):
+        pygame.draw.rect(window, self.kleur,
+                         (self.middelpunt[0], self.middelpunt[1], self.breedte, self.hoogte))
+ 
+ 
+class Polygon(Figuur):
+    def __init__(self, kleur, punten):
+        super().__init__(kleur)
+        self.punten = punten
+ 
+    def teken(self, window):
+        pygame.draw.polygon(window, self.kleur, self.punten)
+ 
+ 
+class Button():
+    def __init__(self, x, y, image, scale):
+        width = int(image.get_width() * scale)
+        height = int(image.get_height() * scale)
+        self.image = pygame.transform.scale(image, (width, height))
+        zichtbare_rect = self.image.get_bounding_rect()
+        new_surf = pygame.Surface(zichtbare_rect.size, pygame.SRCALPHA)
+        new_surf.blit(self.image, (0, 0), zichtbare_rect)
+        self.image = new_surf
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+ 
+    def draw(self, window):
+        action = False
+        pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
+                self.clicked = True
+                action = True
+            if pygame.mouse.get_pressed()[0] == 0:
+                self.clicked = False
+        window.blit(self.image, (self.rect.x, self.rect.y))
+        return action
+ 
+ 
+battle_button = Button(480, 300, battle_img, 0.8)
+exit_button = Button(480, 540, exit_img, 0.8)
+pvp_button = Button(460, 200, pvp_img, 0.25)
+versusai_button = Button(435, 330, versusai_img, 0.3)
+ 
+ 
+class Cooldown:
+    def __init__(self, max_tijd):
+        self.max_tijd = max_tijd
+        self.timer = max_tijd
+ 
+    def update(self):
+        if self.timer < self.max_tijd:
+            self.timer += 1
+ 
+    def gebruik(self):
+        if self.klaar():
+            self.timer = 0
+            return True
+        return False
+ 
+    def klaar(self):
+        return self.timer >= self.max_tijd
+ 
+ 
+class GOKU():
+    def __init__(self, controller, beginpos):
         self.image_right = pygame.image.load("GOKU .png")
         self.image_left = pygame.image.load("GOKU_reverse.png")
         self.surf = self.image_right
@@ -119,198 +141,189 @@ class GOKU():
         self.links = controller[2]
         self.onder = controller[0]
         self.boven = controller[1]
+        self.boven_ingedrukt = False
         self.LG_ATT = controller[5]
         self.Punch = controller[6]
         self.BOOST = controller[4]
         self.sprong = 0
         self.max_sprong = 2
-        self.op_grond = False 
-        self.rect = self.surf.get_rect() 
+        self.rect = self.surf.get_rect()
         self.rect.x = beginpos[0]
         self.rect.y = beginpos[1]
-        self.gr = 0 
+        self.gr = 0
+        self.op_grond = False
         self.dashing = False
         self.dashing_tijd = 0
         self.dashing_maxtijd = frame_count * 0.15
-        self.dashing_cooldown = frame_count * 2
-        self.dashing_Ctijd = 0 
+        self.dash_cooldown = Cooldown(frame_count * 2)
         self.levens = 3
         self.schade = 1
         self.freeze_timer = 0
-        self.lg_cooldown_timer = 0
         self.punch_cooldown_timer = 0
-    def update(self,pressed_keys): 
-        self.rect.y +=self.gr 
+ 
+    def update(self, pressed_keys):
+        self.op_grond = False
+
+        self.gr += 5
+        self.gr = min(self.gr, 25)
+        self.rect.y += self.gr
+
+        for (x_min, x_max, y_land, y_check_min, y_check_max) in platforms:
+            if y_check_min <= self.rect.bottom <= y_check_max and self.rect.right >= x_min and self.rect.left <= x_max and self.gr >= 0:
+                self.rect.bottom = y_land
+                self.gr = 0
+                self.sprong = 0
+                self.boven_ingedrukt = False
+                self.op_grond = True
+                break
         if self.richting == 1:
             self.surf = self.image_right
         else:
             self.surf = self.image_left
-        if self.rect.y >= scherm_display[1] + 500 or self.rect.y <= -500 or self.rect.x >= scherm_display[0]+200 or self.rect.x <= -200:
-            if self.levens >= 2 :
+ 
+        if self.rect.y >= scherm_display[1] or self.rect.x <= 0 or self.rect.x >= scherm_display[0]:
+            if self.levens > 0:
                 self.rect.x = respawn_pos[0]
                 self.rect.y = respawn_pos[1]
+                self.gr = 0
                 self.levens -= 1
-                self.schade = 1
+                self.schade += 1
             else:
                 self.levens = 0
-                draw_text("YOU WIN", text_font, groen, 670, 200)
-                draw_text("YOU LOSE", text_font, rood, 80, 200)
-                pygame.draw.line(scherm,zwart, (620,0),(620,720),20)
-                
-        if pressed_keys[self.BOOST] and not self.dashing and self.dashing_Ctijd >= self.dashing_cooldown:
+ 
+        self.dash_cooldown.update()
+        if pressed_keys[self.BOOST] and not self.dashing and self.dash_cooldown.gebruik():
             self.dashing = True
             self.dashing_tijd = 0
-        
         if self.dashing:
             if self.dashing_tijd < self.dashing_maxtijd:
                 self.rect.x += 25 * self.richting
                 self.dashing_tijd += 1
             else:
                 self.dashing = False
-                self.dashing_Ctijd = 0
-        if not self.dashing:
-            self.dashing_Ctijd += 1
-            
-        #cooldown regels voor attacks    
-        if self.lg_cooldown_timer > 0:
-            self.lg_cooldown_timer -= 1
+ 
+        if pressed_keys[self.LG_ATT]:
+            if len(attaque) < 1:
+                attaque.append(long_range_att(self, self.richting))
+ 
         if self.punch_cooldown_timer > 0:
             self.punch_cooldown_timer -= 1
-            
-        if pressed_keys[self.LG_ATT]:
-            if len(attaque) < 1 and self.lg_cooldown_timer == 0:
-                projectiel = long_range_att(self, self.richting)
-                attaque.append(projectiel)
-                self.freeze_timer = 10
-                self.lg_cooldown_timer = 10
+ 
         if pressed_keys[self.Punch]:
             if len(punches) < 1 and self.punch_cooldown_timer == 0:
-                nieuwe_punch = Punch(self)
-                punches.append(nieuwe_punch)
+                punches.append(Punch(self))
                 self.freeze_timer = 20
                 self.punch_cooldown_timer = 30
-                
+ 
         if self.freeze_timer > 0:
             self.freeze_timer -= 1
-            
+ 
         if self.freeze_timer == 0:
-            #als de aanval over is mag je bewegen
-                
-            if pressed_keys[self.rechts]: 
-                self.rect.x += snelheid 
+            if pressed_keys[self.rechts]:
+                self.rect.x += snelheid
                 self.richting = 1
-            if pressed_keys[self.links]: 
+            if pressed_keys[self.links]:
                 self.rect.x -= snelheid
                 self.richting = -1
-            if pressed_keys[self.onder]: 
-                if 480 <=self.rect.y <= 500 and 140 <= self.rect.x <= 1140: 
-                    self.rect.y = 485
-                else: 
-                    self.rect.y += beneden
-            if pressed_keys[self.boven] and self.sprong <= self.max_sprong: 
-                if self.sprong == 0:
-                    self.gr = -65
-                else:
-                    self.gr = -40
-                self.sprong += 1 
-#rechter platform
-            elif 285<= self.rect.y <= 300 and 750 <= self.rect.x <= 1070: 
-                self.rect.y = 300 
-                self.gr = 0 
-                self.sprong = 0
-#linker platform
-            elif 285<=self.rect.y <= 300 and 140 <= self.rect.x <= 460: 
-                self.rect.y = 300 
-                self.gr = 0 
-                self.sprong = 0
-#grote platform
-            elif 480 <=self.rect.y <= 550 and -40 <= self.rect.x <= 1220: 
-                self.rect.y = 485 
-                self.gr = 0 
-                self.sprong = 0
-#boven platform
-            elif 100 <= self.rect.y <= 115 and 420 <= self.rect.x <= 765:
-                self.rect.y = 110 
-                self.gr = 0 
-                self.sprong = 0
-            else: 
-                self.gr += 5        
-                self.gr = min(self.gr, 20)
-
+ 
+            if pressed_keys[self.boven]:
+                if not self.boven_ingedrukt and self.sprong < self.max_sprong:
+                    self.gr = -65 if self.sprong == 0 else -40
+                    self.sprong += 1
+                self.boven_ingedrukt = True
+            else:
+                self.boven_ingedrukt = False
+ 
+            if pressed_keys[self.onder]:
+                self.rect.y += beneden
+ 
  
 class long_range_att():
     def __init__(self, speler_object, direction):
         self.eigenaar = speler_object
-        self.surf = pygame.Surface((20,20))
-        self.surf.fill((blauw))
+        self.surf = pygame.Surface((20, 20))
+        self.surf.fill(blauw)
         self.direction = direction
         if direction == 1:
-            self.rect = self.surf.get_rect(midleft = speler_object.rect.midright)
+            self.rect = self.surf.get_rect(midleft=speler_object.rect.midright)
         else:
-            self.rect = self.surf.get_rect(midright = speler_object.rect.midleft)
+            self.rect = self.surf.get_rect(midright=speler_object.rect.midleft)
+ 
     def update(self):
         self.rect.x += (15 * self.direction)
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            speler_1.rect.x += 50*self.direction * speler_1.schade
-            speler_1.rect.y -= 30*speler_1.schade
+            speler_1.rect.x += 50 * self.direction * speler_1.schade
+            speler_1.rect.y -= 30 * speler_1.schade
             speler_1.schade *= 1.17
-            speler_1.freeze_timer = 5 #kleine freeze voor speler 2
+            speler_1.freeze_timer = 5
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
-            speler_2.rect.x += 50*self.direction * speler_2.schade
-            speler_2.rect.y -= 30*speler_2.schade
+            speler_2.rect.x += 50 * self.direction * speler_2.schade
+            speler_2.rect.y -= 30 * speler_2.schade
             speler_2.schade *= 1.17
-            speler_2.freeze_timer = 5 #kleine freeze voor speler 1
+            speler_2.freeze_timer = 5
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
-            return True  # markeer voor verwijdering
+            return True
         return False
-
+ 
+ 
 class Punch():
     def __init__(self, speler_object):
         self.eigenaar = speler_object
-        self.surf = pygame.Surface((50,20))
-        self.surf.fill((groen))
+        self.surf = pygame.Surface((50, 20))
+        self.surf.fill(groen)
         self.direction = speler_object.richting
-        self.timer = 20 #hoe lang de punch duurt
+        self.timer = 20
         if self.direction == 1:
-            self.rect = self.surf.get_rect(midleft = speler_object.rect.midright)
+            self.rect = self.surf.get_rect(midleft=speler_object.rect.midright)
         else:
-            self.rect = self.surf.get_rect(midright = speler_object.rect.midleft)
+            self.rect = self.surf.get_rect(midright=speler_object.rect.midleft)
+ 
     def update(self):
         self.timer -= 1
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            speler_1.rect.x += 150*self.direction * speler_1.schade
-            speler_1.rect.y -= 50*speler_1.schade
-            speler_1.schade *= 1.3
-            speler_1.freeze_timer = 10 #freeze speler2 voor 10 frames
+            speler_1.rect.x += 150 * self.direction * speler_1.schade
+            speler_1.rect.y -= 50 * speler_1.schade
+            speler_1.schade *= 2
+            speler_1.freeze_timer = 10
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
-            speler_2.rect.x += 150*self.direction * speler_2.schade
-            speler_2.rect.y -= 50*speler_2.schade
-            speler_2.schade *= 1.3
-            speler_2.freeze_timer = 10 # freeze speler1 vor 10 frames
+            speler_2.rect.x += 150 * self.direction * speler_2.schade
+            speler_2.rect.y -= 50 * speler_2.schade
+            speler_2.schade *= 2
+            speler_2.freeze_timer = 10
             return True
         if self.timer <= 0:
-            return True  # markeer voor verwijdering
+            return True
         return False
-        
-    
-
+ 
+ 
 class GOKU_AI(GOKU):
     def update_ai(self):
-        keys_pressed = [0]
-
-
+        if self.rect.x < speler_1.rect.x:
+            self.rect.x += snelheid*0.5
+            self.richting = 1
+        else:
+            self.rect.x -= snelheid*0.5
+            self.richting = -1
+        if speler_1.rect.y < self.rect.y and self.sprong < self.max_sprong:
+            self.gr = -65 if self.sprong == 0 else -40
+            self.sprong += 1
+        if abs(self.rect.x - speler_1.rect.x) < 100:
+            if len(punches) < 1 and self.punch_cooldown_timer == 0:
+                punches.append(Punch(self))
+                self.punch_cooldown_timer = 30
+ 
+ 
 speler_1 = GOKU(controller_1, beginpos1)
 speler_2 = GOKU(controller_2, beginpos2)
 alle_spelers = [speler_1, speler_2]
  
-        
 text_font = pygame.font.SysFont("broadway", 100)
 attaque = []
 punches = []
-
+ 
 figuren = [
     Cirkel(geel, (1080, 150), 80),
     Cirkel(wit, (650, 120), 30), 
@@ -342,107 +355,105 @@ figuren = [
     Rechthoek(bruin, (515,200), 250, 45),
     Rechthoek(gras, (515,200), 250, 12), ]
  
-
-status = "MENU" 
+status = "MENU"
 spel_mode = "PVP"
+ 
+ 
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    scherm.blit(img, (x, y))
+ 
+ 
 def startscherm():
     scherm.fill(kleur_menu)
     titel_font = pygame.font.SysFont("modern", 80)
-    
     draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 290, 150)
-    
+ 
+ 
+def teken_game(spel_mode):
+    scherm.fill((135, 206, 235))
+    for fig in figuren:
+        fig.teken(scherm)
+ 
+    game_font = pygame.font.SysFont("arial", 30)
+    levens_font = pygame.font.SysFont("arial", 50)
+ 
+    draw_text("druk op b voor menu", game_font, zwart, 520, 660)
+    draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
+    draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
+    draw_text("%: " + str(round(speler_1.schade * 100)), game_font, zwart, 100, 650)
+    draw_text("%: " + str(round(speler_2.schade * 100)), game_font, zwart, 900, 650)
+ 
+    naam_s2 = "AI_bot 1" if spel_mode == "vsAI" else "speler 2"
+ 
+    for speler in alle_spelers:
+        if isinstance(speler, GOKU_AI):
+            speler.update_ai()
+        speler.update(key_pressed)
+        scherm.blit(speler.surf, speler.rect)
+ 
+    draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y - 40)
+    draw_text(naam_s2, game_font, zwart, speler_2.rect.x, speler_2.rect.y - 40)
+ 
+    if speler_1.levens <= 0:
+        draw_text("YOU WIN", text_font, groen, 670, 200)
+        draw_text("YOU LOSE", text_font, rood, 80, 200)
+        pygame.draw.line(scherm, zwart, (620, 0), (620, 720), 20)
+    elif speler_2.levens <= 0:
+        draw_text("YOU WIN", text_font, groen, 80, 200)
+        draw_text("YOU LOSE", text_font, rood, 670, 200)
+        pygame.draw.line(scherm, zwart, (620, 0), (620, 720), 20)
+ 
+    global attaque, punches
+    attaque = [p for p in attaque if not p.update()]
+    for projectiel in attaque:
+        scherm.blit(projectiel.surf, projectiel.rect)
+ 
+    punches = [p for p in punches if not p.update()]
+    for p in punches:
+        scherm.blit(p.surf, p.rect)
+ 
+ 
 doorlopen = True
 while doorlopen:
     key_pressed = pygame.key.get_pressed()
-    
+ 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             doorlopen = False
-            
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_b:
                 status = "MENU"
-        
-
+                attaque.clear()
+                punches.clear()
+ 
     if status == "MENU":
         startscherm()
         if pvp_button.draw(scherm):
             speler_1 = GOKU(controller_1, beginpos1)
             speler_2 = GOKU(controller_2, beginpos2)
             alle_spelers = [speler_1, speler_2]
+            attaque.clear()
+            punches.clear()
             status = "GAME"
             spel_mode = "PVP"
-            
+ 
         if versusai_button.draw(scherm):
             speler_1 = GOKU(controller_1, beginpos1)
             speler_2 = GOKU_AI(controller_2, beginpos2)
             alle_spelers = [speler_1, speler_2]
+            attaque.clear()
+            punches.clear()
             status = "GAME"
             spel_mode = "vsAI"
-            
+ 
         if exit_button.draw(scherm):
-             doorlopen = False
-    
-    elif status == "GAME" and spel_mode == "PVP":
-        scherm.fill((135, 206, 235))
-        for fig in figuren:
-            fig.teken(scherm)
-        game_font = pygame.font.SysFont("arial", 30)
-        draw_text("druk op b voor menu", game_font, zwart, 520, 660)
-        levens_font = pygame.font.SysFont("arial", 50)
-        draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
-        draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
-        draw_text("%: " + str(speler_1.schade*100), game_font, zwart, 100, 650)
-        draw_text("%: " + str(speler_2.schade*100), game_font, zwart, 900, 650)
-        
-        for speler in alle_spelers:
-            speler.update(key_pressed)
-            scherm.blit(speler.surf, speler.rect)
-            #titels boven spelers
-            draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y-40)
-            draw_text("speler 2", game_font,zwart, speler_2.rect.x , speler_2.rect.y-40)
-            
-        
-        attaque = [p for p in attaque if not p.update()]
-        for projectiel in attaque:
-            scherm.blit(projectiel.surf, projectiel.rect)
-            
-        punches = [p for p in punches if not p.update()]
-        for p in punches:
-            scherm.blit(p.surf, p.rect)
-    
-    elif status == "GAME" and spel_mode == "vsAI":
-        scherm.fill((135, 206, 235))
-        for fig in figuren:
-            fig.teken(scherm)
-        game_font = pygame.font.SysFont("arial", 30)
-        draw_text("druk op b voor menu", game_font, zwart, 520, 660)
-        levens_font = pygame.font.SysFont("arial", 50)
-        draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
-        draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
-        draw_text("%: " + str(speler_1.schade*100), game_font, zwart, 100, 650)
-        draw_text("%: " + str(speler_2.schade*100), game_font, zwart, 900, 650)
-        
-          
-        for speler in alle_spelers:
-            speler.update(key_pressed)
-            scherm.blit(speler.surf, speler.rect)
-            #titels boven spelers
-            draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y-40)
-            draw_text("AI_bot 1", game_font,zwart, speler_2.rect.x , speler_2.rect.y-40)
-            
-        
-        attaque = [p for p in attaque if not p.update()]
-        for projectiel in attaque:
-            scherm.blit(projectiel.surf, projectiel.rect)
-            
-        punches = [p for p in punches if not p.update()]
-        for p in punches:
-            scherm.blit(p.surf, p.rect)
-            
-        
-
+            doorlopen = False
+ 
+    elif status == "GAME":
+        teken_game(spel_mode)
+ 
     pygame.display.flip()
     clock.tick(frame_count)
-
+ 
 pygame.quit()

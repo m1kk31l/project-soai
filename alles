@@ -423,7 +423,7 @@ class Punch():
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             speler_2.kb_x += 5 * self.direction * speler_2.schade
-            speler_2.kb_y -= -2.5 * speler_2.schade
+            speler_2.kb_y -= 2.5 * speler_2.schade
             speler_2.schade *= 2
             speler_2.freeze_timer = 10
             return True
@@ -496,41 +496,6 @@ class ChargedProjectile:
 
         return False
 
-class Shield:
-    def __init__(self, speler):
-        self.eigenaar = speler
-        self.active = False
-        self.max_energy = 2*frame_count
-        self.energy = self.max_energy
-        self.regen_speed = 0.5
-        self.drain_speed = 1.5
-        self.broken = False
-        self.break_timer = 0
-
-    def update(self, holding):
-        if self.broken:
-            self.break_timer -= 1
-            if self.break_timer <= 0:
-                self.broken = False
-                self.energy = self.max_energy * 0.5
-        if holding and self.energy > 0:
-            self.active = True
-            self.energy -= self.drain_speed
-            if self.energy <= 0:
-                self.energy = 0
-                self.broken = True
-                self.break_timer = 120
-                self.active = False
-        else:
-            self.active = False
-            if self.energy < self.max_energy:
-                self.energy += self.regen_speed
-                self.energy = min(self.energy, self.max_energy)
-
-    def draw(self, scherm):
-        if self.active:
-            radius = (40 * (self.energy / self.max_energy))
-            pygame.draw.circle(scherm, blauw, self.eigenaar.rect.center, radius, 3)
 
 
 class GOKU_AI(GOKU):

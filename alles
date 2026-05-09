@@ -18,7 +18,7 @@ geel = (255, 223, 0)
 bruin = (160, 82, 45)
 gras = (124, 252, 0)
 blauw = (0, 0, 255)
-kleur_menu = (200, 20, 20)
+oranje = (255,165,0)
  
 
 beginpos1 = (400,500)
@@ -149,9 +149,9 @@ class Button():
         window.blit(self.image, (self.rect.x, self.rect.y))
         return action
  
-exit_button = Button(460, 460, exit_img, 0.3)
-versusai_button = Button(460, 330, versusai_img, 0.3)
-pvp_button = Button(450, 180, pvp_img, 0.3)
+exit_button = Button(250, 500, exit_img, 0.3)
+versusai_button = Button(900, 280, versusai_img, 0.3)
+pvp_button = Button(250, 140, pvp_img, 0.3)
 
  
 class Cooldown:
@@ -263,6 +263,7 @@ class GOKU():
         self.wrijving = 0.95
         self.cooldown = 2*frame_count
         self.shield = Shield(self)
+        self.weight = 130
  
     def update(self, pressed_keys):
         self.op_grond = False
@@ -298,7 +299,7 @@ class GOKU():
                 self.rect.y = respawn_pos[1]
                 self.gr = 0
                 self.levens -= 1
-                self.schade += 1
+                self.schade = 0.01
             else:
                 self.levens = 0
  
@@ -381,17 +382,20 @@ class long_range_att():
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
             if speler_1.shield.take_hit(10):
                 return True 
-            speler_1.kb_x = 1 * self.direction * speler_1.schade
-            speler_1.kb_y = -0.625 * speler_1.schade
-            speler_1.schade *= 20
+            #formule uit ssb
+            kb_berekening = (80 * speler_1.schade) / (speler_1.weight / 100)
+            speler_1.kb_x = 0.7 * self.direction * kb_berekening
+            speler_1.kb_y = -0.3 * kb_berekening
+            speler_1.schade += 0.11
             speler_1.freeze_timer = 5
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             if speler_2.shield.take_hit(10):
                 return True
-            speler_2.kb_x += 1 * self.direction * speler_2.schade
-            speler_2.kb_y -= -0.625 * speler_2.schade
-            speler_2.schade *= 20
+            kb_berekening = (80 * speler_2.schade) / (speler_2.weight / 100)
+            speler_2.kb_x += 0.7 * self.direction * kb_berekening
+            speler_2.kb_y -= -0.3 * kb_berekening
+            speler_2.schade += 0.11
             speler_2.freeze_timer = 5
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
@@ -414,15 +418,17 @@ class Punch():
     def update(self):
         self.timer -= 1
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            speler_1.kb_x += 5 * self.direction * speler_1.schade
-            speler_1.kb_y -= -2.5 * speler_1.schade
-            speler_1.schade *= 2
+            kb_berekening = (250 * speler_1.schade) / (speler_1.weight / 100)
+            speler_1.kb_x += 1 * self.direction * kb_berekening
+            speler_1.kb_y -= 0.4 * kb_berekening
+            speler_1.schade += 0.10
             speler_1.freeze_timer = 10
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
-            speler_2.kb_x += 5 * self.direction * speler_2.schade
-            speler_2.kb_y -= 2.5 * speler_2.schade
-            speler_2.schade *= 2
+            kb_berekening = (250 * speler_2.schade) / (speler_2.weight / 100)
+            speler_2.kb_x += 1 * self.direction * speler_2.schade
+            speler_2.kb_y -= 0.4 * speler_2.schade
+            speler_2.schade += 0.10
             speler_2.freeze_timer = 10
             return True
         if self.timer <= 0:
@@ -462,7 +468,7 @@ class ChargedProjectile:
 
         size = int(20 + 40 * power)
         self.surf = pygame.Surface((size, size))
-        self.surf.fill(rood)
+        self.surf.fill(oranje)
 
         if self.direction == 1:
             self.rect = self.surf.get_rect(midleft=speler.rect.midright)
@@ -482,10 +488,12 @@ class ChargedProjectile:
         if self.rect.colliderect(target.rect):
             if target.shield.take_hit(10 * self.power):
                 return True 
-            knockback = 50 + 200 * self.power
-            target.rect.x += knockback * self.direction * target.schade
-            target.rect.y -= (10 + 100 * self.power) * target.schade
-            target.schade *= (1.5 + self.power)
+            base_kb = 100 + (300 * self.power)
+            kb_berekening = (base_kb * target.schade) / (target.weight / 100)
+            
+            target.kb_x = self.direction * kb_berekening
+            target.kb_y = -0.6 * kb_berekening
+            target.schade += (0.1 + self.power * 0.2)
             target.freeze_timer = int(10 + 20 * self.power)
             return True
 
@@ -512,20 +520,36 @@ class GOKU_AI(GOKU):
                 punches.append(Punch(self))
                 self.punch_cooldown_timer = 30
                 
-"""               
+            
 class HOMELANDER(GOKU):
     def __init__(self, controller, beginpos):
         super().__init__(controller, beginpos)
         self.image_right = pygame.image.load("HOMELANDER.png").convert_alpha()
-        self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()      
+        self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()  
+        self.weight = 115
+        
         
         
     def update(self, pressed_keys):
         super().update(pressed_keys)
         
-"""
+        
+        
+class Laser(long_range_att):
+    def __init__(self, speler_object, direction):
+        super().__init__(speler_object,direction)
  
- 
+    def update(self):
+            return True
+
+
+class Superjump(ChargeAttack):
+    def __init__(self, speler_object):
+        super().__init__(speler_object)
+        
+    def update(self):
+        return True
+    
 speler_1 = GOKU(controller_1, beginpos1)
 speler_2 = GOKU(controller_2, beginpos2)
 alle_spelers = [speler_1, speler_2]
@@ -576,7 +600,7 @@ def draw_text(text, font, text_col, x, y):
  
 def startscherm():
     titel_font = pygame.font.SysFont("modern", 80)
-    draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 290, 150)
+    draw_text("NOT SUPER SMASH BROS", titel_font, zwart, 290, 120)
  
  
 def teken_game(spel_mode):
@@ -586,7 +610,7 @@ def teken_game(spel_mode):
  
     game_font = pygame.font.SysFont("arial", 30)
     levens_font = pygame.font.SysFont("arial", 50)
- 
+
     draw_text("druk op b voor menu", game_font, zwart, 520, 660)
     draw_text("Levens: " + str(speler_1.levens), levens_font, zwart, 100, 50)
     draw_text("Levens: " + str(speler_2.levens), levens_font, zwart, 900, 50)
@@ -602,6 +626,7 @@ def teken_game(spel_mode):
         speler.update(key_pressed)
         scherm.blit(speler.surf, speler.rect)
     
+    speler.shield.draw(scherm)
  
     draw_text("speler 1", game_font, zwart, speler_1.rect.x, speler_1.rect.y - 40)
     draw_text(naam_s2, game_font, zwart, speler_2.rect.x, speler_2.rect.y - 40)
@@ -651,7 +676,7 @@ while doorlopen:
         scherm.blit(menu_img,(0,0))
         startscherm()
         if pvp_button.draw(scherm):
-            speler_1 = GOKU(controller_1, beginpos1)
+            speler_1 = HOMELANDER(controller_1, beginpos1)
             speler_2 = GOKU(controller_2, beginpos2)
             alle_spelers = [speler_1, speler_2]
             attaque.clear()

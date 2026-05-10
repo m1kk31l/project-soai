@@ -384,19 +384,19 @@ class long_range_att():
             if speler_1.shield.take_hit(10):
                 return True 
             #formule uit ssb
-            kb_berekening = ((speler_1.schade / speler_1.weight) * 35) + 5
+            kb_berekening = ((speler_1.schade / speler_1.weight) * 18) + 4
             speler_1.kb_x = 0.35 * self.direction * kb_berekening
-            speler_1.kb_y = -0.22 * kb_berekening
-            speler_1.schade += 8
+            speler_1.kb_y -= 0.22 * kb_berekening
+            speler_1.schade += 4
             speler_1.freeze_timer = 5
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             if speler_2.shield.take_hit(10):
                 return True
-            kb_berekening = ((speler_1.schade / speler_1.weight) * 35) + 5
+            kb_berekening = ((speler_2.schade / speler_2.weight) * 18) + 4
             speler_2.kb_x += 0.35 * self.direction * kb_berekening
-            speler_2.kb_y -= -0.22 * kb_berekening
-            speler_2.schade += 8
+            speler_2.kb_y -= 0.22 * kb_berekening
+            speler_2.schade += 4
             speler_2.freeze_timer = 5
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
@@ -419,17 +419,17 @@ class Punch():
     def update(self):
         self.timer -= 1
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            kb_berekening = ((speler_1.schade / speler_1.weight) * 35) + 5
+            kb_berekening = ((speler_1.schade / speler_1.weight) * 22) + 6
             speler_1.kb_x += 0.35 * self.direction * kb_berekening
-            speler_1.kb_y -= -0.22 * kb_berekening
-            speler_1.schade += 12
+            speler_1.kb_y -= 0.22 * kb_berekening
+            speler_1.schade += 6
             speler_1.freeze_timer = 10
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
-            kb_berekening = ((speler_1.schade / speler_1.weight) * 35) + 5
+            kb_berekening = ((speler_2.schade / speler_2.weight) * 22) + 6
             speler_2.kb_x += 0.35 * self.direction * kb_berekening
-            speler_2.kb_y -= -0.22 * kb_berekening
-            speler_2.schade += 12
+            speler_2.kb_y -= 0.22 * kb_berekening
+            speler_2.schade += 6
             speler_2.freeze_timer = 10
             return True
         if self.timer <= 0:
@@ -489,12 +489,11 @@ class ChargedProjectile:
         if self.rect.colliderect(target.rect):
             if target.shield.take_hit(10 * self.power):
                 return True 
-            base_kb = 100 + (300 * self.power)
-            kb_berekening = ((speler_1.schade / speler_1.weight) * 35) + 5
+            kb_berekening = ((speler_2.schade / speler_2.weight) * 28) + 8
             
             target.kb_x = self.direction * kb_berekening
             target.kb_y = -0.6 * kb_berekening
-            target.schade += (8 + self.power * 15)
+            target.schade += (5 + self.power * 10)
             target.freeze_timer = int(10 + 20 * self.power)
             return True
 

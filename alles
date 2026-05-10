@@ -2,6 +2,7 @@ import pygame
 import random
 
 pygame.init()
+pygame.joystick.init()
 pygame.display.set_caption("NOT SUPER SMASH BROS")
  
 scherm_display = (1280, 720)
@@ -175,53 +176,53 @@ class Cooldown:
 class GamecubeController:
     def __init__(self, joystick_id=0):
         pygame.joystick.init()
+
+        if pygame.joystick.get_count() == 0:
+            raise Exception("Aucune manette détectée")
+
         self.joystick = pygame.joystick.Joystick(joystick_id)
         self.joystick.init()
 
-        # axes
-        self.axis_x = 0
-        self.axis_y = 1
+        print("Manette connectée :", self.joystick.get_name())
 
-        # boutons (à adapter selon ton setup)
+        # deadzone
+        self.deadzone = 0.3
+
+        # AXES
+        self.LEFT_STICK_X = 0
+        self.LEFT_STICK_Y = 1
+
+        # BOUTONS GAMECUBE / adaptateur dolphin
         self.BUTTON_A = 0
         self.BUTTON_B = 1
         self.BUTTON_X = 2
         self.BUTTON_Y = 3
         self.BUTTON_L = 4
         self.BUTTON_R = 5
+        self.BUTTON_Z = 7
+        self.BUTTON_START = 9
 
     def get_inputs(self):
+
+        x = self.joystick.get_axis(self.LEFT_STICK_X)
+        y = self.joystick.get_axis(self.LEFT_STICK_Y)
+
         inputs = {
-            "left": False,
-            "right": False,
-            "up": False,
-            "down": False,
-            "jump": False,
-            "attack": False,
-            "special": False,
-            "dash": False
+            "left": x < -self.deadzone,
+            "right": x > self.deadzone,
+            "up": y < -self.deadzone,
+            "down": y > self.deadzone,
+
+            "jump": self.joystick.get_button(self.BUTTON_A),
+            "attack": self.joystick.get_button(self.BUTTON_B),
+            "special": self.joystick.get_button(self.BUTTON_X),
+            "shield": self.joystick.get_button(self.BUTTON_L),
+            "dash": self.joystick.get_button(self.BUTTON_R),
+            "LG": self.joystick.get_button(self.BUTTON_Y),
         }
 
-        x = self.joystick.get_axis(self.axis_x)
-        y = self.joystick.get_axis(self.axis_y)
-
-        # stick
-        if x < -0.5:
-            inputs["left"] = True
-        if x > 0.5:
-            inputs["right"] = True
-        if y < -0.5:
-            inputs["up"] = True
-        if y > 0.5:
-            inputs["down"] = True
-
-        # boutons
-        inputs["jump"] = self.joystick.get_button(self.BUTTON_A)
-        inputs["attack"] = self.joystick.get_button(self.BUTTON_B)
-        inputs["special"] = self.joystick.get_button(self.BUTTON_X)
-        inputs["dash"] = self.joystick.get_button(self.BUTTON_R)
-
         return inputs
+# gamecubeclasse werd gemaakt met behulp van AI
 
 
 class GOKU():
@@ -265,7 +266,7 @@ class GOKU():
         self.shield = Shield(self)
         self.weight = 130
  
-    def update(self, pressed_keys):
+    def update(self, pressed_keys, inputs):
         self.op_grond = False
         
         self.rect.x += self.kb_x
@@ -277,9 +278,6 @@ class GOKU():
         self.gr += 5
         self.gr = min(self.gr, 25)
         self.rect.y += self.gr
-        
-        
-
         for (x_min, x_max, y_land, y_check_min, y_check_max) in platforms:
             if y_check_min <= self.rect.bottom <= y_check_max and self.rect.right >= x_min and self.rect.left <= x_max and self.gr >= 0:
                 self.rect.bottom = y_land
@@ -304,7 +302,7 @@ class GOKU():
                 self.levens = 0
  
         self.dash_cooldown.update()
-        if pressed_keys[self.BOOST] and not self.dashing and self.dash_cooldown.gebruik():
+        if (pressed_keys[self.BOOST] or inputs["dash"] )and not self.dashing and self.dash_cooldown.gebruik():
             self.dashing = True
             self.dashing_tijd = 0
         if self.dashing:
@@ -315,20 +313,20 @@ class GOKU():
                 self.dashing = False
  
         self.cooldown_LG.update()
-        if pressed_keys[self.LG_ATT] and self.cooldown_LG.gebruik():
+        if (pressed_keys[self.LG_ATT] or inputs["LG"] ) and self.cooldown_LG.gebruik():
             attaque.append(long_range_att(self, self.richting))
  
         if self.punch_cooldown_timer > 0:
             self.punch_cooldown_timer -= 1
         
-        if pressed_keys[self.Punch]:
+        if pressed_keys[self.Punch] or inputs["attack"]:
            if len(punches) < 1 and self.punch_cooldown_timer == 0:
                attaque.append(Punch(self))
                self.freeze_timer = 20
                self.punch_cooldown_timer = 30    
         
         
-        if pressed_keys[self.charged]:
+        if pressed_keys[self.charged] or inputs["special"]:
             self.charge_attack.start()
             self.was_charging = True
         else:
@@ -341,20 +339,20 @@ class GOKU():
         self.charge_attack.update()
         
         
-        self.shield.update(pressed_keys[self.SHIELD])
+        self.shield.update(pressed_keys[self.SHIELD] or inputs["shield"])
  
         if self.freeze_timer > 0:
             self.freeze_timer -= 1
  
         if self.freeze_timer == 0:
-            if pressed_keys[self.rechts]:
+            if pressed_keys[self.rechts] or inputs["right"]:
                 self.rect.x += snelheid
                 self.richting = 1
-            if pressed_keys[self.links]:
+            if pressed_keys[self.links] or inputs["left"]:
                 self.rect.x -= snelheid
                 self.richting = -1
  
-            if pressed_keys[self.boven]:
+            if pressed_keys[self.boven] or inputs["up"]:
                 if not self.boven_ingedrukt and self.sprong < self.max_sprong:
                     self.gr = -65 if self.sprong == 0 else -40
                     self.sprong += 1
@@ -362,7 +360,7 @@ class GOKU():
             else:
                 self.boven_ingedrukt = False
  
-            if pressed_keys[self.onder]:
+            if pressed_keys[self.onder] or inputs["down"]:
                 self.rect.y += beneden
         
     
@@ -505,21 +503,77 @@ class ChargedProjectile:
 
 
 class GOKU_AI(GOKU):
+    def __init__(self, controller, beginpos):
+        super().__init__(controller, beginpos)
+        self.state = "APPROACH"
+        self.reaction_timer = 0
+
     def update_ai(self):
-        if self.rect.x < speler_1.rect.x:
-            self.rect.x += snelheid*0.5
-            self.richting = 1
+        afstand = abs(self.rect.x - speler_1.rect.x)
+        if speler_1.levens <= 0:
+            return
+
+        player_attacking = (
+            getattr(speler_1, "punching", False) or
+            speler_1.charge_attack.charging
+        )
+        self.reaction_timer += 1
+        if self.reaction_timer < 6:
+            return
+        self.reaction_timer = 0
+        if speler_1.levens < 30 and afstand < 200:
+            self.state = "AGGRESSIVE"
+        elif player_attacking and afstand < 180:
+            self.state = "DEFEND"
+        elif afstand > 350:
+            self.state = "APPROACH"
+        elif afstand > 120:
+            self.state = "ATTACK"
         else:
-            self.rect.x -= snelheid*0.5
-            self.richting = -1
-        if speler_1.rect.y < self.rect.y and self.sprong < self.max_sprong:
-            self.gr = -65 if self.sprong == 0 else -40
-            self.sprong += 1
-        if abs(self.rect.x - speler_1.rect.x) < 100:
-            if len(punches) < 1 and self.punch_cooldown_timer == 0:
-                punches.append(Punch(self))
-                self.punch_cooldown_timer = 30
-                
+            self.state = "CLOSE_COMBAT"
+        if self.state == "APPROACH":
+            if self.rect.x < speler_1.rect.x:
+                self.rect.x += snelheid * 0.6
+                self.richting = 1
+            else:
+                self.rect.x -= snelheid * 0.6
+                self.richting = -1
+
+        elif self.state == "CLOSE_COMBAT":
+            # micro spacing (meer controle, minder random)
+            if player_attacking:
+                # dodge back
+                if self.rect.x < speler_1.rect.x:
+                    self.rect.x -= snelheid * 0.35
+                    self.richting = -1
+                else:
+                    self.rect.x += snelheid * 0.35
+                    self.richting = 1
+            else:
+                # inch forward pressure
+                if self.rect.x < speler_1.rect.x:
+                    self.rect.x += snelheid * 0.2
+                    self.richting = 1
+                else:
+                    self.rect.x -= snelheid * 0.2
+                    self.richting = -1
+        if speler_1.rect.y < self.rect.y - 60 and self.sprong < self.max_sprong:
+            if not player_attacking:  # niet springen in aanval
+                self.gr = -65 if self.sprong == 0 else -40
+                self.sprong += 1
+        if self.state in ["ATTACK", "AGGRESSIVE"]:
+            if self.punch_cooldown_timer == 0:
+                if afstand < 160 and not player_attacking:
+                    punches.append(Punch(self))
+                    self.punch_cooldown_timer = 28
+        if self.state == "DEFEND":
+            self.shield.update(True)
+        elif afstand < 90 and player_attacking:
+            self.shield.update(True)
+        else:
+            self.shield.update(False)
+        if self.punch_cooldown_timer > 0:
+            self.punch_cooldown_timer -= 1
             
 class HOMELANDER(GOKU):
     def __init__(self, controller, beginpos):
@@ -530,8 +584,8 @@ class HOMELANDER(GOKU):
         
         
         
-    def update(self, pressed_keys):
-        super().update(pressed_keys)
+    def update(self,inputs ,pressed_keys):
+        super().update(inputs, pressed_keys)
         
         
         
@@ -553,6 +607,8 @@ class Superjump(ChargeAttack):
 speler_1 = GOKU(controller_1, beginpos1)
 speler_2 = GOKU(controller_2, beginpos2)
 alle_spelers = [speler_1, speler_2]
+controller1 = GamecubeController(0)
+controller2 = GamecubeController(1)
  
 text_font = pygame.font.SysFont("broadway", 100)
 attaque = []
@@ -623,7 +679,6 @@ def teken_game(spel_mode):
         speler.shield.draw(scherm)
         if isinstance(speler, GOKU_AI):
             speler.update_ai()
-        speler.update(key_pressed)
         scherm.blit(speler.surf, speler.rect)
     
     speler.shield.draw(scherm)
@@ -662,6 +717,12 @@ def teken_game(spel_mode):
 doorlopen = True
 while doorlopen:
     key_pressed = pygame.key.get_pressed()
+    inputs_p1 = controller1.get_inputs()
+    speler_1.update(key_pressed, inputs_p1)
+    inputs_p2 = controller2.get_inputs()
+    if not isinstance(speler_2, GOKU_AI):
+        
+        speler_2.update(key_pressed, inputs_p2)
  
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

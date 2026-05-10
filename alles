@@ -300,6 +300,8 @@ class GOKU():
                 self.gr = 0
                 self.levens -= 1
                 self.schade = 0.01
+                self.kb_x = 0
+                self.kb_y = 0
             else:
                 self.levens = 0
  
@@ -560,21 +562,17 @@ class HOMELANDER(GOKU):
         self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()
         self.weight = 110
         self.charge_attack = Superjump(self)
-        
-        # Laser instellingen
-        self.laser_knop = controller[5] # K_e voor speler 1
-        self.LG_ATT = None             # Dit blokkeert de blauwe bal van Goku
+
+        self.laser_knop = controller[5]
+        self.LG_ATT = None   
         self.lasering = False
         self.laser_manager = Laserogen(self)
     
     def update(self, pressed_keys):
-        # Check de laser knop
         if pressed_keys[self.laser_knop]:
             self.lasering = True
         else:
             self.lasering = False
-
-        # Laat de moederclass de rest doen (bewegen, jumpen, superjump)
         super().update(pressed_keys)
 
     def draw_laser(self, window):
@@ -659,10 +657,7 @@ def teken_game(spel_mode):
             speler.update_ai()
         
         speler.update(key_pressed)
-        
-        # UNIEK VOOR HOMELANDER:
         if isinstance(speler, HOMELANDER) and speler.lasering:
-            # Wie is het doelwit?
             target = speler_2 if speler == speler_1 else speler_1
             speler.laser_manager.update(scherm, target)
             

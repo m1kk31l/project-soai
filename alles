@@ -2,6 +2,10 @@ import pygame
 import random
 
 pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load('int.mp3')
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.5)
 pygame.joystick.init()
 pygame.display.set_caption("NOT SUPER SMASH BROS")
  
@@ -150,9 +154,9 @@ class Button():
         window.blit(self.image, (self.rect.x, self.rect.y))
         return action
  
-exit_button = Button(250, 500, exit_img, 0.3)
-versusai_button = Button(900, 280, versusai_img, 0.3)
-pvp_button = Button(250, 140, pvp_img, 0.3)
+exit_button = Button(434, 500, exit_img, 0.3)
+versusai_button = Button(435, 280, versusai_img, 0.3)
+pvp_button = Button(420, 140, pvp_img, 0.3)
 
  
 class Cooldown:

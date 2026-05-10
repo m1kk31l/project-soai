@@ -1,4 +1,4 @@
-import pygame #zonder inputs/gamecube
+import pygame
 import random
 
 pygame.init()
@@ -387,19 +387,19 @@ class long_range_att():
             if speler_1.shield.take_hit(10):
                 return True 
             #formule uit ssb
-            kb_berekening = ((speler_1.schade / speler_1.weight) * 18) + 4
-            speler_1.kb_x = 0.35 * self.direction * kb_berekening
-            speler_1.kb_y -= 0.22 * kb_berekening
-            speler_1.schade += 4
+            kb_berekening = (80 * speler_1.schade) / (speler_1.weight / 100)
+            speler_1.kb_x = 0.7 * self.direction * kb_berekening
+            speler_1.kb_y = -0.3 * kb_berekening
+            speler_1.schade += 0.11
             speler_1.freeze_timer = 5
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             if speler_2.shield.take_hit(10):
                 return True
-            kb_berekening = ((speler_2.schade / speler_2.weight) * 18) + 4
-            speler_2.kb_x += 0.35 * self.direction * kb_berekening
-            speler_2.kb_y -= 0.22 * kb_berekening
-            speler_2.schade += 4
+            kb_berekening = (80 * speler_2.schade) / (speler_2.weight / 100)
+            speler_2.kb_x += 0.7 * self.direction * kb_berekening
+            speler_2.kb_y -= -0.3 * kb_berekening
+            speler_2.schade += 0.11
             speler_2.freeze_timer = 5
             return True
         if self.rect.right >= 1280 or self.rect.left <= 0:
@@ -422,17 +422,17 @@ class Punch():
     def update(self):
         self.timer -= 1
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            kb_berekening = ((speler_1.schade / speler_1.weight) * 22) + 6
-            speler_1.kb_x += 0.35 * self.direction * kb_berekening
-            speler_1.kb_y -= 0.22 * kb_berekening
-            speler_1.schade += 6
+            kb_berekening = (250 * speler_1.schade) / (speler_1.weight / 100)
+            speler_1.kb_x += 1 * self.direction * kb_berekening
+            speler_1.kb_y -= 0.4 * kb_berekening
+            speler_1.schade += 0.10
             speler_1.freeze_timer = 10
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
-            kb_berekening = ((speler_2.schade / speler_2.weight) * 22) + 6
-            speler_2.kb_x += 0.35 * self.direction * kb_berekening
-            speler_2.kb_y -= 0.22 * kb_berekening
-            speler_2.schade += 6
+            kb_berekening = (250 * speler_2.schade) / (speler_2.weight / 100)
+            speler_2.kb_x += 1 * self.direction * speler_2.schade
+            speler_2.kb_y -= 0.4 * speler_2.schade
+            speler_2.schade += 0.10
             speler_2.freeze_timer = 10
             return True
         if self.timer <= 0:
@@ -492,11 +492,11 @@ class ChargedProjectile:
         if self.rect.colliderect(target.rect):
             if target.shield.take_hit(10 * self.power):
                 return True 
-            kb_berekening = ((speler_2.schade / speler_2.weight) * 28) + 8
             
+            kb_berekening = ((100 + (300 * self.power)) * target.schade) / (target.weight / 100)
             target.kb_x = self.direction * kb_berekening
             target.kb_y = -0.6 * kb_berekening
-            target.schade += (5 + self.power * 10)
+            target.schade += (0.1 + self.power * 0.2)
             target.freeze_timer = int(10 + 20 * self.power)
             return True
 
@@ -617,7 +617,7 @@ class HOMELANDER(GOKU):
         super().__init__(controller, beginpos)
         self.image_right = pygame.image.load("HOMELANDER.png").convert_alpha()
         self.image_left = pygame.image.load("HOMELANDER_reverse.png").convert_alpha()
-        self.weight = 110
+        self.weight = 118
         self.charge_attack = Superjump(self)
 
         self.laser_knop = controller[5]

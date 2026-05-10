@@ -300,7 +300,7 @@ class GOKU():
                 self.rect.y = respawn_pos[1]
                 self.gr = 0
                 self.levens -= 1
-                self.schade = 0.01
+                self.schade = 0
                 self.kb_x = 0
                 self.kb_y = 0
             else:
@@ -432,8 +432,8 @@ class Punch():
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
             kb_berekening = (150 * speler_2.schade) / (speler_2.weight / 100)
-            speler_2.kb_x += 1 * self.direction * speler_2.schade
-            speler_2.kb_y -= 0.4 * speler_2.schade
+            speler_2.kb_x += 1 * self.direction * kb_berekening
+            speler_2.kb_y -= 0.4 * kb_berekening
             speler_2.schade += 0.10
             speler_2.freeze_timer = 10
             return True
@@ -565,7 +565,7 @@ class GOKU_AI(GOKU):
                     self.richting = -1
         if speler_1.rect.y < self.rect.y - 60 and self.sprong < self.max_sprong:
             if not player_attacking:  # niet springen in aanval
-                self.gr = -65 if self.sprong == 0 else -40
+                self.gr = -26 if self.sprong == 0 else -22
                 self.sprong += 1
         if self.state in ["ATTACK", "AGGRESSIVE"]:
             if self.punch_cooldown_timer == 0:
@@ -644,8 +644,8 @@ class HOMELANDER(GOKU):
 speler_1 = GOKU(controller_1, beginpos1)
 speler_2 = GOKU(controller_2, beginpos2)
 alle_spelers = [speler_1, speler_2]
-#controller1 = GamecubeController(0)
-#controller2 = GamecubeController(1)
+# controller1 = GamecubeController(0)  doe de hastags weg voor gamecube
+# controller2 = GamecubeController(1)
  
 text_font = pygame.font.SysFont("broadway", 100)
 attaque = []
@@ -717,7 +717,6 @@ def teken_game(spel_mode):
         if isinstance(speler, GOKU_AI):
             speler.update_ai()
         
-        speler.update(key_pressed)
         if isinstance(speler, HOMELANDER) and speler.lasering:
             target = speler_2 if speler == speler_1 else speler_1
             speler.laser_manager.update(scherm, target)
@@ -760,6 +759,10 @@ def teken_game(spel_mode):
 doorlopen = True
 while doorlopen:
     key_pressed = pygame.key.get_pressed()
+    if status == "GAME":
+        speler_1.update(key_pressed)
+        if not isinstance(speler_2, GOKU_AI):
+            speler_2.update(key_pressed)
     
  
     for event in pygame.event.get():

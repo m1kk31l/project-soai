@@ -422,14 +422,14 @@ class Punch():
     def update(self):
         self.timer -= 1
         if self.rect.colliderect(speler_1.rect) and self.eigenaar != speler_1:
-            kb_berekening = (250 * speler_1.schade) / (speler_1.weight / 100)
+            kb_berekening = (150 * speler_1.schade) / (speler_1.weight / 100)
             speler_1.kb_x += 1 * self.direction * kb_berekening
             speler_1.kb_y -= 0.4 * kb_berekening
             speler_1.schade += 0.10
             speler_1.freeze_timer = 10
             return True
         if self.rect.colliderect(speler_2.rect) and self.eigenaar != speler_2:
-            kb_berekening = (250 * speler_2.schade) / (speler_2.weight / 100)
+            kb_berekening = (150 * speler_2.schade) / (speler_2.weight / 100)
             speler_2.kb_x += 1 * self.direction * speler_2.schade
             speler_2.kb_y -= 0.4 * speler_2.schade
             speler_2.schade += 0.10
@@ -493,9 +493,9 @@ class ChargedProjectile:
             if target.shield.take_hit(10 * self.power):
                 return True 
             
-            kb_berekening = ((100 + (300 * self.power)) * target.schade) / (target.weight / 100)
+            kb_berekening = ((100 + (6 * self.power)) * target.schade) / (target.weight / 100)
             target.kb_x = self.direction * kb_berekening
-            target.kb_y = -0.6 * kb_berekening
+            target.kb_y = -0.5 * kb_berekening
             target.schade += (0.1 + self.power * 0.2)
             target.freeze_timer = int(10 + 20 * self.power)
             return True
@@ -599,15 +599,15 @@ class Laserogen():
         pygame.draw.rect(window, wit, rect.inflate(0, -4))
 
         if rect.colliderect(target.rect):
-            target.schade += 0.004
-            target.kb_x += 0.2 * self.eigenaar.richting
+            target.schade += 0.008
+            target.kb_x += 0.8 * self.eigenaar.richting
 
 class Superjump(ChargeAttack):
     def release(self):
         if self.charging:
             power = self.charge_time / self.max_charge
             self.charging = False
-            jump_kracht = -100 - (70 * power) 
+            jump_kracht = -50 - (20 * power) 
             self.eigenaar.gr = jump_kracht
             return None
         return None

@@ -1,7 +1,8 @@
 #AZERTY
-controller_1 = [pygame.K_s , pygame.K_z, pygame.K_q, pygame.K_d, pygame.K_LSHIFT, pygame.K_a]
-controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p]
+controller_1 = [pygame.K_s , pygame.K_z, pygame.K_q, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_t, pygame.K_y]
+controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p, pygame.K_o, pygame.K_k]
 
 #QWERTY
-controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r]
-controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p]
+controller_1 = [pygame.K_s , pygame.K_w, pygame.K_a, pygame.K_d, pygame.K_LSHIFT, pygame.K_e, pygame.K_r, pygame.K_t, pygame.K_y]
+controller_2 = [pygame.K_DOWN, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RSHIFT, pygame.K_l, pygame.K_p, pygame.K_o, pygame.K_k]
+
